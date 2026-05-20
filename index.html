@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>伯洋體產生器</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+  :root, [data-theme="light"] {
+    --color-bg: #f7f6f2;
+    --color-surface: #f9f8f5;
+    --color-surface-2: #fbfbf9;
+    --color-border: #d4d1ca;
+    --color-text: #28251d;
+    --color-text-muted: #7a7974;
+    --color-primary: #01696f;
+    --color-primary-hover: #0c4e54;
+    --color-divider: #dcd9d5;
+    --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.08);
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-full: 9999px;
+    --font-body: 'Satoshi', sans-serif;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+    --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+    --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+    --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+    --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  [data-theme="dark"] {
+    --color-bg: #171614;
+    --color-surface: #1c1b19;
+    --color-surface-2: #201f1d;
+    --color-border: #393836;
+    --color-text: #cdccca;
+    --color-text-muted: #797876;
+    --color-primary: #4f98a3;
+    --color-primary-hover: #227f8b;
+    --color-divider: #262523;
+    --shadow-md: 0 4px 12px oklch(0 0 0 / 0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+  body {
+    min-height: 100dvh;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: background var(--transition-interactive), color var(--transition-interactive);
+  }
+  button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+
+  .container { max-width: 720px; margin-inline: auto; padding-inline: var(--space-6); }
+  header {
+    padding: var(--space-4) var(--space-6);
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--color-border);
+    position: sticky; top: 0; z-index: 10;
+    background: var(--color-bg);
+  }
+  .logo { display: flex; align-items: center; gap: var(--space-2); }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: var(--radius-md);
+    background: var(--color-primary); display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .logo-text { font-weight: 700; font-size: var(--text-base); letter-spacing: -0.02em; }
+  .logo-sub { font-size: 0.7rem; color: var(--color-text-muted); margin-top: -2px; }
+
+  .theme-toggle {
+    width: 36px; height: 36px; border-radius: var(--radius-full);
+    border: 1px solid var(--color-border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-text-muted);
+    transition: all var(--transition-interactive);
+  }
+  .theme-toggle:hover { color: var(--color-text); border-color: var(--color-text); }
+
+  main { padding: var(--space-10) var(--space-6); }
+
+  .hero { text-align: center; margin-bottom: var(--space-10); }
+  .hero h1 {
+    font-size: var(--text-2xl); font-weight: 700; letter-spacing: -0.03em;
+    line-height: 1.1; margin-bottom: var(--space-3);
+  }
+  .hero p { color: var(--color-text-muted); font-size: var(--text-base); max-width: 46ch; margin-inline: auto; }
+  .badge {
+    display: inline-block; padding: 2px var(--space-3);
+    background: oklch(from var(--color-primary) l c h / 0.15);
+    color: var(--color-primary); border-radius: var(--radius-full);
+    font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase; margin-bottom: var(--space-4);
+  }
+
+  .form-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--space-6);
+  }
+  .form-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  @media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .field { display: flex; flex-direction: column; gap: var(--space-2); }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted); letter-spacing: 0.02em; }
+  input, select, textarea {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+    color: var(--color-text);
+    font: inherit;
+    font-size: var(--text-sm);
+    transition: border-color var(--transition-interactive), box-shadow var(--transition-interactive);
+    outline: none;
+  }
+  input::placeholder, textarea::placeholder { color: var(--color-text-muted); opacity: 0.6; }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px oklch(from var(--color-primary) l c h / 0.15);
+  }
+
+  .btn-row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .btn-primary {
+    flex: 1; padding: var(--space-3) var(--space-6);
+    background: var(--color-primary); color: #fff;
+    border-radius: var(--radius-md); font-weight: 600;
+    font-size: var(--text-sm);
+    transition: background var(--transition-interactive), transform var(--transition-interactive);
+    min-width: 160px;
+  }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-ghost {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm); color: var(--color-text-muted);
+    transition: all var(--transition-interactive);
+  }
+  .btn-ghost:hover { color: var(--color-text); border-color: var(--color-text); }
+
+  .formula-tabs { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap; }
+  .tab {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-size: 0.8rem; font-weight: 500; color: var(--color-text-muted);
+    transition: all var(--transition-interactive);
+  }
+  .tab.active {
+    background: var(--color-primary); border-color: var(--color-primary);
+    color: #fff;
+  }
+  .tab:hover:not(.active) { color: var(--color-text); border-color: var(--color-text); }
+
+  .output-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: none;
+  }
+  .output-card.visible { display: block; }
+  .output-header {
+    padding: var(--space-3) var(--space-6);
+    border-bottom: 1px solid var(--color-divider);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .output-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+  .copy-btn {
+    display: flex; align-items: center; gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border); border-radius: var(--radius-md);
+    font-size: 0.78rem; color: var(--color-text-muted);
+    transition: all var(--transition-interactive);
+  }
+  .copy-btn:hover { color: var(--color-primary); border-color: var(--color-primary); }
+
+  .output-body { padding: var(--space-6); }
+  .output-text {
+    font-size: var(--text-base); line-height: 1.9;
+    white-space: pre-wrap; color: var(--color-text);
+    font-style: italic;
+  }
+  .output-text .highlight {
+    color: var(--color-primary); font-style: normal; font-weight: 600;
+  }
+
+  .thread-posts { display: flex; flex-direction: column; gap: var(--space-4); }
+  .thread-post {
+    padding: var(--space-4) var(--space-5);
+    background: var(--color-surface-2);
+    border-radius: var(--radius-md);
+    border-left: 2px solid var(--color-primary);
+    font-size: var(--text-sm); line-height: 1.8;
+    position: relative;
+  }
+  .post-num {
+    font-size: 0.7rem; font-weight: 700; color: var(--color-primary);
+    letter-spacing: 0.05em; margin-bottom: var(--space-2);
+    text-transform: uppercase;
+  }
+  .hashtags { margin-top: var(--space-3); }
+  .hashtag {
+    display: inline-block; margin-right: var(--space-2);
+    color: var(--color-primary); font-size: 0.82rem; font-weight: 500;
+  }
+
+  .formula-hint {
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: oklch(from var(--color-primary) l c h / 0.08);
+    border-radius: var(--radius-md);
+    font-size: 0.82rem; color: var(--color-text-muted); line-height: 1.7;
+  }
+  .formula-hint strong { color: var(--color-primary); }
+
+  .divider { height: 1px; background: var(--color-divider); margin: var(--space-6) 0; }
+
+  .watermark { text-align: center; color: var(--color-text-muted); font-size: 0.78rem; margin-top: var(--space-12); padding-bottom: var(--space-8); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .output-card.visible { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🗣</div>
+    <div>
+      <div class="logo-text">伯洋體產生器</div>
+      <div class="logo-sub">政治語言生態系感知工具</div>
+    </div>
+  </div>
+  <button class="theme-toggle" data-theme-toggle aria-label="切換主題">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</header>
+
+<main>
+  <div class="container">
+    <div class="hero">
+      <div class="badge">✨ 伯洋體公式</div>
+      <h1>伯洋體<br>產生器</h1>
+      <p>填入關鍵詞，一鍵生成讓人「有聽跟沒聽一樣」的伯洋體語句，並直接輸出成 Threads 串文格式。</p>
+    </div>
+
+    <div class="form-card">
+      <label style="display:block; margin-bottom: var(--space-3);">選擇公式風格</label>
+      <div class="formula-tabs">
+        <button class="tab active" onclick="setFormula('basic', this)">基礎版</button>
+        <button class="tab" onclick="setFormula('academic', this)">學術煙霧彈版</button>
+        <button class="tab" onclick="setFormula('ironic', this)">反串崇拜版</button>
+        <button class="tab" onclick="setFormula('thread', this)">Threads 串文版</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="subject">對象 / 市民</label>
+          <input type="text" id="subject" placeholder="台北市民、年輕人…" value="台北市民">
+        </div>
+        <div class="field">
+          <label for="noun_a">核心抽象名詞 A</label>
+          <input type="text" id="noun_a" placeholder="休息、空間、時間…" value="休息">
+        </div>
+        <div class="field">
+          <label for="noun_b">連鎖效益 B</label>
+          <input type="text" id="noun_b" placeholder="消費、互動、能量…" value="消費">
+        </div>
+        <div class="field">
+          <label for="noun_c">終極目標 C</label>
+          <input type="text" id="noun_c" placeholder="城市活力、認同感…" value="城市活力">
+        </div>
+        <div class="field full">
+          <label for="buzzword">學術關鍵詞（進階）</label>
+          <input type="text" id="buzzword" placeholder="第三空間感知、韌性對齊、生態系治理…" value="第三空間感知的韌性對齊">
+        </div>
+        <div class="field full">
+          <label for="topic">政策主題（Threads 用）</label>
+          <input type="text" id="topic" placeholder="交通、治安、文化創意…" value="台北市政">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="generate()">🎤 產生伯洋體</button>
+        <button class="btn-ghost" onclick="randomize()">🎲 隨機填入</button>
+      </div>
+    </div>
+
+    <div class="output-card" id="output">
+      <div class="output-header">
+        <span class="output-label" id="output-label">伯洋體語句</span>
+        <button class="copy-btn" onclick="copyOutput()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          複製
+        </button>
+      </div>
+      <div class="output-body" id="output-body"></div>
+    </div>
+
+    <div class="formula-hint">
+      <strong>伯洋體公式懶人包：</strong><br>
+      「讓 <strong>[對象]</strong> 找回他失去的 <strong>[A]</strong> → 有了 A 自然就有 <strong>[B]</strong> → B 帶來的正是 <strong>[C]</strong> 的根本 → 就是那麼簡單的道理而已。」
+    </div>
+  </div>
+</main>
+
+<div class="watermark">伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已</div>
+
+<script>
+let currentFormula = 'basic';
+
+function setFormula(formula, btn) {
+  currentFormula = formula;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+const random = {
+  subjects: ['台北市民', '年輕人', '上班族', '家長們', '創業者'],
+  a: ['休息', '空間', '時間', '連結感', '安全感'],
+  b: ['消費', '互動', '創造', '溝通', '流動'],
+  c: ['城市活力', '認同感', '社區韌性', '生活品質', '集體意識'],
+  buzzwords: ['第三空間感知的韌性對齊', '生態系治理框架', '認知防衛場域整合', '多元共融的感知網絡', '智慧城市的場域共振'],
+  topics: ['台北市政', '交通規劃', '青年政策', '文化創意', '治安改善']
+};
+
+function randomize() {
+  const r = arr => arr[Math.floor(Math.random() * arr.length)];
+  document.getElementById('subject').value = r(random.subjects);
+  document.getElementById('noun_a').value = r(random.a);
+  document.getElementById('noun_b').value = r(random.b);
+  document.getElementById('noun_c').value = r(random.c);
+  document.getElementById('buzzword').value = r(random.buzzwords);
+  document.getElementById('topic').value = r(random.topics);
+}
+
+function getVals() {
+  return {
+    s: document.getElementById('subject').value || '市民',
+    a: document.getElementById('noun_a').value || '休息',
+    b: document.getElementById('noun_b').value || '消費',
+    c: document.getElementById('noun_c').value || '城市活力',
+    bz: document.getElementById('buzzword').value || '第三空間感知的韌性對齊',
+    t: document.getElementById('topic').value || '台北市政'
+  };
+}
+
+function generate() {
+  const v = getVals();
+  const out = document.getElementById('output');
+  const body = document.getElementById('output-body');
+  const label = document.getElementById('output-label');
+
+  let html = '';
+
+  if (currentFormula === 'basic') {
+    label.textContent = '基礎伯洋體';
+    html = `<div class="output-text">讓${v.s}找回他失去的<span class="highlight">【${v.a}】</span>，\n有了${v.a}，自然就會有<span class="highlight">【${v.b}】</span>，\n而${v.b}帶來的，正是<span class="highlight">【${v.c}】</span>的根本。\n\n就是那麼簡單的道理而已。</div>`;
+  } else if (currentFormula === 'academic') {
+    label.textContent = '學術煙霧彈版';
+    html = `<div class="output-text">透過<span class="highlight">【${v.bz}】</span>，\n讓${v.s}自然產生${v.a}的能量，\n有了能量自然帶動${v.b}，\n而${v.b}正是實現<span class="highlight">【${v.c}】</span>的核心生態鏈。\n\n這，就是那麼簡單的道理而已。</div>`;
+  } else if (currentFormula === 'ironic') {
+    label.textContent = '反串崇拜版 🙏';
+    html = `<div class="output-text">有人問我，${v.t}的具體政策是什麼？\n\n我只能說——\n你還停留在「政策」的層次，\n我們已經在討論<span class="highlight">【${v.bz}】</span>了。\n\n讓${v.s}找回${v.a}，有了${v.a}自然有${v.b}，\n有了${v.b}就是<span class="highlight">【${v.c}】</span>的根本。\n\n格局不同，無法溝通。🫡\n\n就是那麼簡單的道理而已。</div>`;
+  } else if (currentFormula === 'thread') {
+    label.textContent = 'Threads 串文（5 則）';
+    const posts = [
+      { num: '1／5', text: `我終於頓悟了。\n以前我以為政治人物要講政策，\n但我錯了。\n政治，要講的是感知的對齊。🙏`, tags: ['#伯洋體', `#${v.t}`, '#我悟了'] },
+      { num: '2／5', text: `只要讓${v.s}找回他失去的${v.a}\n有了${v.a}，自然就會有${v.b}\n有了${v.b}，${v.c}就來了。\n\n這不是廢話，這是因果的生態系。✨`, tags: ['#伯洋體', '#深度治理哲學', '#台灣政治'] },
+      { num: '3／5', text: `有人問我：具體政策是什麼？\n\n我只能說——\n你還停留在「政策」的層次，\n我們已經在討論【${v.bz}】了。\n\n格局不同，無法溝通。🫡`, tags: ['#認知防衛場域', '#你不懂', '#伯洋體認證'] },
+      { num: '4／5', text: `伯洋體懶人包，請收好👇\n\n「讓A回到B\nB自然帶來C\nC就是D的根本\n就是那麼簡單的道理而已。」\n\nA、B、C、D 填入美好但虛無的詞效果滿分 💯`, tags: ['#伯洋體公式', '#政治語言學', '#照樣造句'] },
+      { num: '5／5', text: `以上，\n就是我對${v.t}的全部想像。\n\n沒有預算，沒有時程，沒有KPI。\n只有——\n\n感知。對齊。韌性。生態系。\n\n就是那麼簡單的道理而已。🎤⬇️`, tags: ['#伯洋體', '#伯洋體語錄', '#Threads', `#${v.t}`] }
+    ];
+    html = `<div class="thread-posts">` + posts.map(p => `
+      <div class="thread-post">
+        <div class="post-num">串文 ${p.num}</div>
+        <div style="white-space:pre-wrap; font-size: var(--text-sm); line-height:1.8;">${p.text}</div>
+        <div class="hashtags">${p.tags.map(t => `<span class="hashtag">${t}</span>`).join('')}</div>
+      </div>`).join('') + `</div>`;
+  }
+
+  body.innerHTML = html;
+  out.classList.add('visible');
+  out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyOutput() {
+  const body = document.getElementById('output-body');
+  const text = body.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ 已複製';
+    btn.style.color = 'var(--color-primary)';
+    setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 1800);
+  });
+}
+
+(function(){
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = r.getAttribute('data-theme') || 'dark';
+  const updateIcon = () => {
+    t.innerHTML = d === 'dark'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  };
+  updateIcon();
+  t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    updateIcon();
+  });
+})();
+</script>
+</body>
+</html>
