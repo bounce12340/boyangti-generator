@@ -349,6 +349,10 @@ input:focus, select:focus, textarea:focus {
   font-size: 0.82rem; color: var(--color-text-muted); line-height: 1.7;
 }
 .formula-hint strong { color: var(--color-primary); }
+.formula-hint hr {
+  border: 0; border-top: 1px solid var(--color-divider);
+  margin: var(--space-3) 0;
+}
 
 .watermark {
   text-align: center; color: var(--color-text-muted);

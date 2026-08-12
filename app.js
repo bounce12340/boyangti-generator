@@ -69,7 +69,8 @@ function compose(body, vals, density, opts = {}) {
     const lead = density === 2 && Math.random() < 0.5 ? pick(CORPUS.transitions) : '';
     parts.push(lead + fill(f, vals));
   }
-  let closer = fill(pick(CORPUS.closers), vals);
+  // 風格可自備收尾池（順起來版用來確保競選標語每篇都落地）
+  let closer = fill(pick(opts.closers || CORPUS.closers), vals);
   if (density === 2 && Math.random() < 0.6) closer += ' ' + pick(CORPUS.emojis);
   parts.push(closer);
   return parts.join('\n\n');
@@ -128,7 +129,7 @@ function makePost(useFields) {
   }
 
   const body = fill(pick(pool), vals);
-  let text = compose(body, vals, density, { noOpener: style.noOpener });
+  let text = compose(body, vals, density, { noOpener: style.noOpener, closers: style.closers });
   // 一鍵貼文目標 100–300 字（不含空白）；低濃度=點到為止，不硬補
   if (!useFields && density >= 1) {
     let guard = 0;
