@@ -59,6 +59,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
 | 🔁 **Reroll · 📋 Copy · 🕘 History** | Reroll with the same settings, copy with a character count, and keep the last 5 results in `localStorage`. |
 | 🔧 **Advanced mode** | Supply your own keywords; template selection narrows to the templates that actually use them. |
+| 🌐 **EN / 中 interface** | The UI is bilingual and remembers your choice. **Generated output stays in Traditional Chinese** — the corpus is the joke and it doesn't survive translation. |
 | 🌙 **Themes · 📱 Responsive** | Dark and light, verified down to 375px. |
 
 ### The eight styles
@@ -92,21 +93,24 @@ python3 -m http.server 8000     # → http://localhost:8000
 Opening `index.html` directly over `file://` also works — the page uses plain `<script src>` tags,
 no ES modules and no `fetch`.
 
-Then: pick a style and a density → hit **📝 一鍵產生貼文** → copy, or switch to **💬 產生回覆** and
-paste a comment to reply to.
+Then: pick a style and a density → hit **📝 Generate a post** → copy, or switch to
+**💬 Generate reply** and paste a comment to reply to. The **中 / EN** button in the header switches
+the interface language.
 
 ---
 
 ## Architecture
 
-Five files. `data/corpus.js` declares a global `CORPUS` and **must** load before `app.js` — `app.js`
-contains no content of its own, every user-visible string comes from the corpus.
+Six files. `data/corpus.js` (global `CORPUS`) and `data/i18n.js` (global `I18N`) **must** load before `app.js` — `app.js`
+contains no content of its own: generated strings come from the corpus, interface strings from the
+language pack.
 
 ```
-index.html          markup + the two script tags (load order matters)
+index.html          markup + the script tags (load order matters)
 style.css           design tokens under :root / [data-theme="dark"]
-app.js              generation engine, rendering, storage, theming
+app.js              generation engine, rendering, storage, theming, language
 data/corpus.js      all templates and word pools
+data/i18n.js        interface strings, zh-TW + en
 data/style-guide.md sourced style analysis + graded URL list
 ```
 
@@ -169,7 +173,8 @@ is assembled at random from sentence templates. **It is not the speech of 沈伯
 does not represent his positions.** The project imitates a rhetorical style discussed in public
 commentary; it does not make, and must not be read as making, factual claims about any real person.
 
-The interface and all generated content are in Traditional Chinese (zh-TW).
+The interface is available in English and Traditional Chinese. All *generated* content is Traditional
+Chinese (zh-TW) regardless of interface language.
 
 ---
 
