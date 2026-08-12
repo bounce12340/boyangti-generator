@@ -1,99 +1,175 @@
-# 伯洋體產生器 2.0 🎤
+# Boyangti Generator 🎤
 
-> 一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇「回應了但等於沒回應」的廢話體回覆。
+**繁體中文版 → [README.zh-TW.md](README.zh-TW.md)**
 
----
+> A parody generator for Taiwanese political-speak. One click produces a complete, ready-to-post
+> piece of social media writing that sounds profound and says nothing. Or paste someone's comment
+> and get a reply that responds thoroughly without answering anything.
 
-## 🗣 什麼是伯洋體？
-
-**伯洋體**，源自 2026 台北市長選舉期間，外界對候選人發言風格的一種調侃標籤。
-其核心特徵為：**只講美好目標，不講具體做法**，常搭配抽象術語與層層遞進的因果串聯，讓聽眾產生「聽起來很有道理，但完全不知道在講什麼」的奇妙體驗。
-
-### 經典公式
-
-```
-讓【對象】找回他失去的【A】
-→ 有了 A，自然就會有【B】
-→ 而 B 帶來的，正是【C】的根本
-→ 就是那麼簡單的道理而已。
-```
-
-### 2026 版公式（順起來版）
-
-```
-【卡點A】卡、【卡點B】卡，什麼都卡
-→ 為什麼卡？因為接點斷了
-→ 把斷掉的接點連起來
-→ 接起來，就順了。
-```
+**[Live demo →](https://bounce12340.github.io/boyangti-generator/)**
 
 ---
 
-## ✨ 2.0 功能
+## What is "Boyangti"?
 
-### 📝 一鍵產生貼文
-不用填任何欄位，點一下就產出一篇 100–300 字、可直接發 Threads/FB 的完整貼文——含開場、多層遞進、金句收尾、hashtag。
+**伯洋體** (*Boyangti*, "the Boyang style") is a nickname coined by Taiwanese internet users during
+the 2026 Taipei mayoral race for the speaking style of DPP candidate 沈伯洋 (Shen Bo-yang).
 
-### 💬 產生回覆
-貼上對方的留言，前端自動抽出關鍵詞，生成一篇用伯洋體「回應了但等於沒回應」的回覆。
+The style is characterized — by the online commentary that named it — as **stating beautiful goals
+without stating concrete methods**: abstract nouns chained through layer upon layer of causal
+inference, escalating from something small all the way up to democracy, civilization, or "aligning
+with the world," and closing with a modest "it really is that simple."
 
-### 🎚 廢話濃度滑桿
-低（點到為止）／中（恰到好處的空泛）／高（資訊量趨近於零），控制遞進層數與贅詞密度。
+Every link in the chain sounds reasonable. The chain as a whole carries approximately zero
+information. That gap is the joke this project automates.
 
-### 八種公式風格
+> This generator imitates **sentence structure only**. It makes no factual claims about any real
+> person. See [Disclaimer](#disclaimer).
 
-| 風格 | 說明 |
-|------|------|
-| 🔹 **基礎版** | 標準遞進式伯洋體語句 |
-| 🔹 **順起來版** | 2026 競選語彙：「什麼都卡 → 接點斷了 → 接起來就順了」，附 HEART 與溫暖橘 |
-| 🔹 **學術煙霧彈版** | 「第三空間感知韌性對齊」等術語轟炸，格局瞬間提升 |
-| 🔹 **反串崇拜版** | 全程以信徒崇拜口吻反諷，殺傷力最強 |
-| 🔹 **質詢版** | 對官員連環反問，「部長，這樣對嗎？」 |
-| 🔹 **危機感版** | 凡事上升到民主存亡層次的氛圍渲染 |
-| 🔹 **溫情喊話版** | 對年輕人／市民的柔性遞進勸說，深夜 murmur 風 |
-| 🔹 **Threads 串文版** | 直接輸出 5 則串文 + hashtag，六組骨架隨機抽 |
-
-### 其他功能
-- 🧵 **Threads 貼文卡片**：產出結果模擬 Threads 外觀呈現
-- ↗ **分享到 Threads**：一鍵帶文字開啟 Threads 發文視窗
-- 🔁 **換一篇**：同參數重骰
-- 📋 **一鍵複製**＋字數顯示
-- 🕘 **最近 5 筆紀錄**（localStorage）
-- 🔧 **進階模式**：自己填關鍵詞，客製產出
-- 🌙 **深色 / 淺色主題**、📱 手機 RWD
-
----
-
-## 🚀 使用方式
-
-1. 開啟 `index.html`（或透過 GitHub Pages）
-2. 選擇公式風格與廢話濃度
-3. 點「📝 一鍵產生貼文」——或切到「💬 產生回覆」貼上對方留言
-4. 複製或直接分享到 Threads
-
----
-
-## 🌐 線上體驗
+### The classic formula
 
 ```
-https://bounce12340.github.io/boyangti-generator/
+Give 【SUBJECT】 back the 【A】 they have lost
+→ with A, 【B】 naturally follows
+→ and what B brings is the very foundation of 【C】
+→ it really is that simple.
+```
+
+### The 2026 formula ("順起來" style)
+
+Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), announced August 2026:
+
+```
+【BLOCKAGE A】 is stuck, 【BLOCKAGE B】 is stuck, everything is stuck
+→ Why stuck? Because the junctions are broken
+→ Reconnect the broken junctions
+→ Connect them, and it flows.
 ```
 
 ---
 
-## 🛠 技術說明
+## Features
 
-- 純靜態 HTML / CSS / JavaScript，無後端、無 build 工具、無 API key
-- 檔案結構：`index.html` ＋ `style.css` ＋ `app.js` ＋ `data/corpus.js`（模板與詞庫）＋ `data/style-guide.md`（風格分析與來源）
-- 模板庫：八種風格共 150+ 句式模板、詞庫各 30+ 項，由公開語料與網友「伯洋體」迷因提煉而成（只提煉說話風格，不含事實指控）
-- 字型：[Satoshi](https://www.fontshare.com/fonts/satoshi)（Fontshare CDN）
-- 支援 Light / Dark Mode，375px 手機版面實測不破版
+| | |
+|---|---|
+| 📝 **One-click post** | Fill in nothing. Get a 100–300 character post with an opener, a multi-layer causal ladder, a closing line, and hashtags. |
+| 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing. |
+| 🎚 **Waffle density** | Three levels — *low* (restrained) / *medium* (pleasantly vacant) / *high* (information content approaching zero) — controlling ladder depth, filler count, and transition phrases. |
+| 🧵 **Threads cards** | Output is rendered as mock Threads posts, including a 5-post thread mode. |
+| ↗ **Share** | One click opens the Threads composer pre-filled. |
+| 🔁 **Reroll · 📋 Copy · 🕘 History** | Reroll with the same settings, copy with a character count, and keep the last 5 results in `localStorage`. |
+| 🔧 **Advanced mode** | Supply your own keywords; template selection narrows to the templates that actually use them. |
+| 🌙 **Themes · 📱 Responsive** | Dark and light, verified down to 375px. |
+
+### The eight styles
+
+| Style | What it does |
+|---|---|
+| **基礎版** — Basic | The standard escalating-causal-ladder sentence. |
+| **順起來版** — Flow | 2026 campaign vocabulary: everything's stuck → the junctions are broken → reconnect them. Includes the HEART platform and the "warm orange" branding. |
+| **學術煙霧彈版** — Academic smokescreen | Jargon bombardment ("third-space perceptual resilience alignment"). Instant gravitas. |
+| **反串崇拜版** — Ironic worship | Sustained parody in the voice of an over-devoted follower. The most lethal register. |
+| **質詢版** — Interpellation | Chained rhetorical questions at an official. "Minister, is this right?" |
+| **危機感版** — Crisis | Escalates any topic to the survival of democracy. |
+| **溫情喊話版** — Warmth | Soft, late-night-murmur persuasion aimed at young people and citizens. |
+| **Threads 串文版** — Thread | Emits a full 5-post thread with hashtags, drawn from 7 skeletons. |
+
+Corpus size: **173 templates** across 8 styles, **297 vocabulary entries** across 8 word pools,
+plus 16 reply templates, 39 filler lines, 35 closers, and 48 hashtags.
 
 ---
 
-## ⚠️ 聲明
+## Quick start
 
-本站為**諷刺／娛樂用途之戲仿（parody）創作**，定位是政治語言的幽默諷刺與媒體識讀工具。所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。
+There is no build step, no package manager, and no dependencies.
+
+```bash
+git clone https://github.com/bounce12340/boyangti-generator.git
+cd boyangti-generator
+python3 -m http.server 8000     # → http://localhost:8000
+```
+
+Opening `index.html` directly over `file://` also works — the page uses plain `<script src>` tags,
+no ES modules and no `fetch`.
+
+Then: pick a style and a density → hit **📝 一鍵產生貼文** → copy, or switch to **💬 產生回覆** and
+paste a comment to reply to.
+
+---
+
+## Architecture
+
+Five files. `data/corpus.js` declares a global `CORPUS` and **must** load before `app.js` — `app.js`
+contains no content of its own, every user-visible string comes from the corpus.
+
+```
+index.html          markup + the two script tags (load order matters)
+style.css           design tokens under :root / [data-theme="dark"]
+app.js              generation engine, rendering, storage, theming
+data/corpus.js      all templates and word pools
+data/style-guide.md sourced style analysis + graded URL list
+```
+
+The generation pipeline:
+
+```
+drawVals()   draw a placeholder value bag from CORPUS.words
+pick(pool)   choose a template from CORPUS.styles[style].templates
+fill()       substitute {placeholder} tokens                    → body
+compose()    opener + body + fillers (+ transitions) + closer, sized by density
+drawTags()   hashtags
+```
+
+A style is `{ name, templates }` plus three optional flags: `noOpener` (skip the opener),
+`closers` (a style-private closer pool), and `threadSets` **instead of** `templates` (5-post thread
+sets, a separate branch in `makePost()`). A new style key must also be added to `STYLE_ORDER` in
+`app.js` or no tab renders for it.
+
+Generated text is always written with `textContent`, never `innerHTML` — reply mode echoes user
+input into the output, so that invariant matters.
+
+Contributor notes live in [`CLAUDE.md`](CLAUDE.md).
+
+---
+
+## Content rules
+
+[`data/style-guide.md`](data/style-guide.md) is the sourced analysis behind the corpus: a typology
+of openers, transitions, catchphrases and ladder structures, a full URL list graded
+**官方** (official) / **一手** (primary) / **二手** (secondary) / **論壇** (forum), an honest list of
+sources that could not be verified, and a list of material that was researched and then
+**deliberately excluded**.
+
+Its constraints govern every corpus edit:
+
+- Imitate **speech style only** — no factual allegations, personal attacks, or private-life content
+  about any real person.
+- Every template carries a provenance comment (`〔原站〕` `〔一手〕` `〔二手〕` `〔論壇〕`).
+- Material sourced from a news cycle goes into the style guide *first*, then becomes templates.
+  Material that was excluded gets recorded with its reason, so a later pass doesn't rediscover and
+  add it.
+
+---
+
+## Tech notes
+
+- Pure static HTML / CSS / JavaScript. No backend, no build tooling, no API keys, no dependencies.
+- Font: [Satoshi](https://www.fontshare.com/fonts/satoshi) via the Fontshare CDN — the only external
+  request the page makes. It degrades to `PingFang TC` / `Microsoft JhengHei` if blocked.
+- Deployed to GitHub Pages from `main`.
+- Verification is manual: exercise each style × each density × both modes, in dark and light, at
+  375px width.
+
+---
+
+## Disclaimer
+
+This site is a **parody / satire** created for entertainment and media-literacy purposes. All output
+is assembled at random from sentence templates. **It is not the speech of 沈伯洋 (Shen Bo-yang), and
+does not represent his positions.** The project imitates a rhetorical style discussed in public
+commentary; it does not make, and must not be read as making, factual claims about any real person.
+
+The interface and all generated content are in Traditional Chinese (zh-TW).
 
 ---
 
