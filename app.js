@@ -73,6 +73,7 @@ function applyLang(lang) {
 function labelText(l) {
   if (typeof l === 'string') return l; // 2.0 舊版歷史紀錄存的是字串，相容處理
   if (l.type === 'reply') return t('out.reply');
+  if (l.type === 'checklist') return t('chk.label');
   if (l.type === 'quick') return `${styleName(l.style)}${t('out.sep')}${t('out.quick')}`;
   return styleName(l.style);
 }
@@ -232,6 +233,62 @@ function makeReply(inputText) {
   return { text, tags: drawTags(vals, 2) };
 }
 
+/* ---------- 拆解：把口號變成該問的問題 ----------
+ * 這裡只做兩件事：機械比對文本裡有什麼、輸出固定的問責提問。
+ * 絕不推測「這句話想說什麼」，也絕不生成任何答案。 */
+
+/* 這句話落在邏輯模型的哪幾層——純關鍵詞比對，僅供參考 */
+function ladderHits(text) {
+  return CHECKLIST.ladder.map(rung => {
+    // 影響層併入語料庫的終極目標詞池：同一份詞庫反過來用就是偵測器
+    const extra = rung.key === 'impact' ? CORPUS.words.c.concat(CORPUS.words.a) : [];
+    const found = rung.markers.concat(extra).filter(m => text.includes(m));
+    return { rung, found: [...new Set(found)].slice(0, 4) };
+  });
+}
+
+function detectConcrete(text) {
+  return CHECKLIST.detectors.map(d => ({ d, hit: d.re.test(text) }));
+}
+
+function makeChecklist(input) {
+  const text = input.trim();
+  const kws = extractKeywords(text);
+  // 抽不到關鍵詞就退回通用寫法，不硬塞
+  const vals = { keyword: kws[0] || t('chk.thisClaim'), keyword2: kws[1] || kws[0] || t('chk.thisClaim') };
+  const detected = detectConcrete(text);
+  const missing = detected.filter(x => !x.hit).length;
+
+  const groups = CHECKLIST.groups.map(g => {
+    const pack = g[currentLang] || g['zh-TW'];
+    const det = g.detector ? detected.find(x => x.d.key === g.detector) : null;
+    return {
+      key: g.key,
+      icon: g.icon,
+      title: pack.title,
+      lead: pack.lead,
+      // 輸入若已提供該面向，標示出來——它就不是這句話迴避掉的問題
+      answered: det ? det.hit : false,
+      questions: pack.questions.map(q => fill(q, vals))
+    };
+  });
+
+  return { checklist: true, input: text, keywords: kws, ladder: ladderHits(text), detected, missing, groups,
+           text: checklistText(text, groups) };
+}
+
+/* 純文字版，給複製與分享用 */
+function checklistText(input, groups) {
+  const lines = [t('chk.copyHead'), '「' + input + '」', ''];
+  groups.forEach(g => {
+    lines.push(`${g.icon} ${g.title}`);
+    g.questions.forEach(q => lines.push('  - ' + q));
+    lines.push('');
+  });
+  lines.push(t('chk.copyFoot'));
+  return lines.join('\n');
+}
+
 /* ---------- 輸出渲染（Threads 卡片） ---------- */
 function threadsCard(post, numLabel) {
   const card = document.createElement('article');
@@ -281,7 +338,63 @@ function threadsCard(post, numLabel) {
   return card;
 }
 
+/* 拆解結果的渲染。全程 textContent——這裡會把使用者輸入回填到畫面上 */
+function checklistCard(result) {
+  const wrap = document.createElement('div');
+  wrap.className = 'chk';
+
+  const el = (tag, cls, txt, parent) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (txt !== undefined) n.textContent = txt;
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+
+  // 被拆解的原句
+  const quote = el('blockquote', 'chk-quote', result.input, wrap);
+  quote.setAttribute('lang', 'zh-TW');
+
+  // 具體元素盤點：只陳述文本裡找不找得到，不做評價
+  const scan = el('div', 'chk-scan', undefined, wrap);
+  el('div', 'chk-scan-head', t('chk.scanHead', { n: result.missing, total: result.detected.length }), scan);
+  const chips = el('div', 'chk-chips', undefined, scan);
+  result.detected.forEach(({ d, hit }) => {
+    const pack = d[currentLang] || d['zh-TW'];
+    el('span', 'chk-chip' + (hit ? ' hit' : ''), (hit ? '✓ ' : '✗ ') + (hit ? pack.has : pack.none), chips);
+  });
+
+  // 邏輯模型落點。五層全空也要照常顯示——那本身就是最有資訊量的結果
+  const lad = el('div', 'chk-ladder', undefined, wrap);
+  el('div', 'chk-scan-head', t('chk.ladderHead'), lad);
+  result.ladder.forEach(({ rung, found }) => {
+    const pack = rung[currentLang] || rung['zh-TW'];
+    const row = el('div', 'chk-rung' + (found.length ? ' on' : ''), undefined, lad);
+    el('span', 'chk-rung-name', pack.name, row);
+    el('span', 'chk-rung-desc', pack.desc, row);
+    el('span', 'chk-rung-hit', found.length ? found.join('、') : '—', row);
+  });
+  if (!result.ladder.some(l => l.found.length)) el('p', 'chk-none', t('chk.ladderNone'), lad);
+  el('p', 'chk-note', t('chk.ladderNote'), lad);
+
+  // 問責提問
+  result.groups.forEach(g => {
+    const sec = el('section', 'chk-group' + (g.answered ? ' answered' : ''), undefined, wrap);
+    const h = el('div', 'chk-group-head', undefined, sec);
+    el('span', 'chk-icon', g.icon, h);
+    el('h3', undefined, g.title, h);
+    if (g.answered) el('span', 'chk-tag', t('chk.answered'), h);
+    el('p', 'chk-lead', g.lead, sec);
+    const ul = el('ul', 'chk-q', undefined, sec);
+    g.questions.forEach(q => el('li', undefined, q, ul));
+  });
+
+  el('p', 'chk-note chk-foot', t('chk.foot'), wrap);
+  return wrap;
+}
+
 function shareText(result) {
+  if (result.checklist) return result.text;
   if (result.thread) {
     return result.thread.map(p => p.text + (p.tags.length ? '\n' + p.tags.join(' ') : '')).join('\n\n———\n\n');
   }
@@ -293,15 +406,23 @@ function render(result, label) {
   lastLabel = label;
   const bodyEl = $('output-body');
   bodyEl.innerHTML = '';
-  const group = document.createElement('div');
-  group.className = 'thread-group';
-  const posts = result.thread || [{ text: result.text, tags: result.tags }];
-  posts.forEach((p, i) => group.appendChild(
-    threadsCard(p, result.thread ? t('out.thread', { i: i + 1, n: posts.length }) : null)));
-  bodyEl.appendChild(group);
+  if (result.checklist) {
+    bodyEl.appendChild(checklistCard(result));
+  } else {
+    const group = document.createElement('div');
+    group.className = 'thread-group';
+    const posts = result.thread || [{ text: result.text, tags: result.tags }];
+    posts.forEach((p, i) => group.appendChild(
+      threadsCard(p, result.thread ? t('out.thread', { i: i + 1, n: posts.length }) : null)));
+    bodyEl.appendChild(group);
+  }
 
+  // 拆解結果是固定的，重骰沒有意義；分享用的是問題清單而非戲仿貼文
+  $('btn-again').hidden = !!result.checklist;
   $('output-label').textContent = labelText(label);
-  $('char-count').textContent = `${result.text.replace(/\s/g, '').length} ${t('out.chars')}`;
+  $('char-count').textContent = result.checklist
+    ? t('chk.count', { n: result.groups.reduce((a, g) => a + g.questions.length, 0) })
+    : `${result.text.replace(/\s/g, '').length} ${t('out.chars')}`;
   const out = $('output');
   out.classList.remove('visible');
   void out.offsetWidth; // 重觸發動畫
@@ -392,6 +513,9 @@ function runAction(action) {
     render(generateUnique('fields:' + currentStyle, () => makePost(true)), { type: 'fields', style: currentStyle });
   } else if (action.type === 'reply') {
     render(generateUnique('reply', () => makeReply(action.input)), { type: 'reply' });
+  } else if (action.type === 'checklist') {
+    // 同樣輸入應得到同樣的問題清單，故不重骰
+    render(makeChecklist(action.input), { type: 'checklist' });
   }
 }
 
@@ -400,7 +524,10 @@ function setMode(mode) {
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   $('post-panel').hidden = mode !== 'post';
   $('reply-panel').hidden = mode !== 'reply';
+  $('checklist-panel').hidden = mode !== 'checklist';
   $('style-block').hidden = mode !== 'post';
+  // 濃度只影響戲仿產出，拆解模式用不到
+  $('density-row').hidden = mode === 'checklist';
 }
 
 function initTabs() {
@@ -480,6 +607,19 @@ document.addEventListener('DOMContentLoaded', () => {
     runAction({ type: 'reply', input });
   });
   $('reply-input').addEventListener('input', () => { $('reply-warn').hidden = true; });
+
+  $('btn-checklist').addEventListener('click', () => {
+    const input = $('checklist-input').value.trim();
+    const warn = $('checklist-warn');
+    if (!input) {
+      warn.hidden = false;
+      $('checklist-input').focus();
+      return;
+    }
+    warn.hidden = true;
+    runAction({ type: 'checklist', input });
+  });
+  $('checklist-input').addEventListener('input', () => { $('checklist-warn').hidden = true; });
 
   $('btn-again').addEventListener('click', () => { if (lastAction) runAction(lastAction); });
   $('btn-copy').addEventListener('click', e => { if (lastResult) copyText(shareText(lastResult), e.currentTarget); });

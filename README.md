@@ -54,6 +54,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 |---|---|
 | 📝 **One-click post** | Fill in nothing. Get a 100–300 character post with an opener, a multi-layer causal ladder, a closing line, and hashtags. |
 | 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing. |
+| 🔍 **Unpack a slogan** | The reverse tool. Paste a slogan and get the accountability questions it dodges — who owns it, what it costs, by when, what counts as success, by what authority, at whose cost, what if it fails. **It never generates answers**, only questions plus a literal scan of which concrete elements are absent. |
 | 🎚 **Waffle density** | Three levels — *low* (restrained) / *medium* (pleasantly vacant) / *high* (information content approaching zero) — controlling ladder depth, filler count, and transition phrases. |
 | 🧵 **Threads cards** | Output is rendered as mock Threads posts, including a 5-post thread mode. |
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
@@ -101,9 +102,10 @@ the interface language.
 
 ## Architecture
 
-Six files. `data/corpus.js` (global `CORPUS`) and `data/i18n.js` (global `I18N`) **must** load before `app.js` — `app.js`
-contains no content of its own: generated strings come from the corpus, interface strings from the
-language pack.
+Seven files. `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and
+`data/checklist.js` (global `CHECKLIST`) **must** load before `app.js` — `app.js` contains no content
+of its own: generated strings come from the corpus, interface strings from the language pack,
+unpack-mode questions from the checklist.
 
 ```
 index.html          markup + the script tags (load order matters)
@@ -111,6 +113,7 @@ style.css           design tokens under :root / [data-theme="dark"]
 app.js              generation engine, rendering, storage, theming, language
 data/corpus.js      all templates and word pools
 data/i18n.js        interface strings, zh-TW + en
+data/checklist.js   unpack-mode questions and detectors (not parody content)
 data/style-guide.md sourced style analysis + graded URL list
 ```
 
@@ -143,6 +146,10 @@ of openers, transitions, catchphrases and ladder structures, a full URL list gra
 **官方** (official) / **一手** (primary) / **二手** (secondary) / **論壇** (forum), an honest list of
 sources that could not be verified, and a list of material that was researched and then
 **deliberately excluded**.
+
+These rules govern `data/corpus.js`. They do **not** govern `data/checklist.js`, which is a genuine
+tool rather than parody — its own rule is stricter: it may generate questions and report what is
+literally present in the text, never answers.
 
 Its constraints govern every corpus edit:
 

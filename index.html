@@ -45,6 +45,7 @@
       <div class="mode-switch" role="tablist">
         <button class="mode-btn active" data-mode="post" data-i18n="mode.post">📝 產生貼文</button>
         <button class="mode-btn" data-mode="reply" data-i18n="mode.reply">💬 產生回覆</button>
+        <button class="mode-btn" data-mode="checklist" data-i18n="mode.checklist">🔍 拆解口號</button>
       </div>
 
       <div id="style-block">
@@ -52,7 +53,7 @@
         <div class="formula-tabs" id="style-tabs"></div>
       </div>
 
-      <div class="density-row">
+      <div class="density-row" id="density-row">
         <div class="density-head">
           <span class="form-section-label" style="margin-bottom:0" data-i18n="label.density">廢話濃度</span>
           <span class="density-hint" id="density-hint"></span>
@@ -110,6 +111,18 @@
           <button class="btn-primary" id="btn-reply" data-i18n="btn.reply">💬 產生廢話回覆</button>
         </div>
       </div>
+
+      <div id="checklist-panel" hidden>
+        <div class="field full" style="margin-bottom: var(--space-4)">
+          <label for="checklist-input" data-i18n="chk.label2">貼上一句口號或政見</label>
+          <textarea id="checklist-input" data-i18n-ph="chk.ph" placeholder="例如：把斷掉的接點連起來，台北就順起來了"></textarea>
+        </div>
+        <div class="reply-warn" id="checklist-warn" data-i18n="chk.warn" hidden>請先貼上一句話，才有東西可以拆。</div>
+        <div class="btn-row">
+          <button class="btn-primary" id="btn-checklist" data-i18n="btn.checklist">🔍 拆出該問的問題</button>
+        </div>
+        <p class="chk-intro" data-i18n="chk.intro"></p>
+      </div>
     </div>
 
     <div class="output-card" id="output">
@@ -141,6 +154,7 @@
 
 <script src="data/corpus.js"></script>
 <script src="data/i18n.js"></script>
+<script src="data/checklist.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
