@@ -74,4 +74,6 @@ A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is ren
 
 ## Conventions
 
-Everything user-facing is Traditional Chinese (zh-TW). Code comments and commit messages are also Chinese; commits use an emoji prefix (`✨ 2.0 改版：…`, `📚 建立語料資料庫：…`).
+The site UI, all corpus content, code comments, and commit messages are Traditional Chinese (zh-TW); commits use an emoji prefix (`✨ 2.0 改版：…`, `📚 建立語料資料庫：…`).
+
+**The README is the exception**: `README.md` is English and is the primary version; `README.zh-TW.md` mirrors it in zh-TW. The two are cross-linked at the top and must be kept in sync — a change to features, style count, or corpus numbers belongs in both. Do not "fix" `README.md` back to Chinese.
