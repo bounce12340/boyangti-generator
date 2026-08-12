@@ -19,7 +19,9 @@ Verification is manual: open the page, exercise each style tab × each density s
 
 ## Architecture
 
-Five files, one hard dependency edge: `data/corpus.js` (global `CORPUS`) and `data/i18n.js` (global `I18N`) **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — generated strings come from `CORPUS`, interface strings from `I18N`.
+Six files, one hard dependency edge: `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and `data/checklist.js` (global `CHECKLIST`) **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — generated strings come from `CORPUS`, interface strings from `I18N`, unpack-mode questions from `CHECKLIST`.
+
+There are three modes: `post` and `reply` produce parody, `checklist` does the opposite — it takes a slogan apart. See [Unpack mode](#unpack-mode-datachecklistjs).
 
 ### Generation pipeline (`app.js`)
 
@@ -56,6 +58,19 @@ Each entry in `CORPUS.styles` is `{ name, templates }` plus three optional flags
 - `threadSets` **instead of** `templates` — an array of 5-post sets, each post `{ text, tags }`. This is a separate branch in `makePost()` and returns `{ thread: [...] }`, which changes rendering, `shareText()`, and the share intent.
 
 A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it.
+
+### Unpack mode (`data/checklist.js`)
+
+The media-literacy half of the site: paste a slogan, get the accountability questions it dodges. **`data/checklist.js` is not parody content** — it carries no `〔一手〕`-style provenance comments and is *not* governed by the `style-guide.md` content rules below.
+
+One rule governs it instead: **generate questions and report what is literally in the text; never generate answers.** Any "what this really means" inference would just be a second layer of waffle, which is the thing the site exists to mock. Keep it that way.
+
+Three pieces, all mechanical:
+- **`detectors`** — regexes for concrete elements (numbers, money, dates, agencies, legal instruments, metrics). Pure string matching, no semantics. A group whose detector fires is marked `answered` and dimmed, because that facet is no longer being dodged.
+- **`ladder`** — the five rungs of a policy logic model (投入/活動/產出/成果/影響) matched by keyword. The impact rung additionally folds in `CORPUS.words.c` and `.a`: the same vocabulary that drives the generator doubles as the detector for what it parodies. Rendered even when nothing matches — "landed on no rung at all" is the most informative result, so don't hide it.
+- **`groups`** — seven question sets (who / cost / when / metric / authority / trade-off / risk), each with a `{keyword}` slot filled from `extractKeywords()`, falling back to a generic phrase when nothing extracts.
+
+Output is deterministic — same input, same questions — so `runAction` skips `generateUnique` and `render()` hides the reroll button. `checklistCard()` builds DOM with `textContent` throughout; it echoes user input, so keep it that way.
 
 ### Interface language (`data/i18n.js`)
 
