@@ -50,8 +50,9 @@ drawTags()   → hashtags
 
 ### Adding or changing a style
 
-Each entry in `CORPUS.styles` is `{ name, templates }` plus two optional flags:
+Each entry in `CORPUS.styles` is `{ name, templates }` plus three optional flags:
 - `noOpener: true` — skip the post-style opener (used by 質詢版, which starts mid-interpellation).
+- `closers` — a style-private closer pool that replaces `CORPUS.closers` for that style (used by 順起來版 so the campaign slogan lands in every post). Reply mode always uses the global pool.
 - `threadSets` **instead of** `templates` — an array of 5-post sets, each post `{ text, tags }`. This is a separate branch in `makePost()` and returns `{ thread: [...] }`, which changes rendering, `shareText()`, and the share intent.
 
 A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it.
