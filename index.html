@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-theme="dark">
+<html lang="zh-TW" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,14 @@
 <meta name="description" data-i18n-content="meta.desc" content="一鍵生成「有聽跟沒聽一樣」的伯洋體貼文與回覆——政治語言的幽默諷刺／媒體識讀小工具。">
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script>
+  // 在首次繪製前套用使用者存過的主題，避免明亮→深色的閃爍。
+  // 鍵名需與 app.js 的 THEME_KEY 一致。
+  try {
+    var s = localStorage.getItem('byt_theme_v1');
+    if (s) document.documentElement.setAttribute('data-theme', s);
+  } catch (e) { /* 隱私模式可能失敗，維持標記上的預設 */ }
+</script>
 </head>
 <body>
 

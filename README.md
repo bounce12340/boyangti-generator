@@ -59,8 +59,8 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
 | 🔁 **Reroll · 📋 Copy · 🕘 History** | Reroll with the same settings, copy with a character count, and keep the last 5 results in `localStorage`. |
 | 🔧 **Advanced mode** | Supply your own keywords; template selection narrows to the templates that actually use them. |
-| 🌐 **EN / 中 interface** | The UI is bilingual and remembers your choice. **Generated output stays in Traditional Chinese** — the corpus is the joke and it doesn't survive translation. |
-| 🌙 **Themes · 📱 Responsive** | Dark and light, verified down to 375px. |
+| 🌐 **EN / 中 interface** | Starts in Traditional Chinese; the toggle switches to English and remembers your choice. **Generated output stays in Traditional Chinese either way** — the corpus is the joke and it doesn't survive translation. |
+| 🌙 **Themes · 📱 Responsive** | Light by default, dark one click away, choice remembered. Verified down to 375px. |
 
 ### The eight styles
 
