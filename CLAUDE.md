@@ -74,7 +74,7 @@ It then rebuilds the style tabs (`initTabs()` clears and re-renders, so it is sa
 
 Anything rendered from JS rather than markup (style tab names, output labels, thread counters, the copy-button confirmation, card chrome) goes through `t(key, vars)` / `styleName(key)`. English style names live in `I18N.en.styles`, keyed by style key; `zh-TW` has `styles: null` and falls back to `CORPUS.styles[key].name`.
 
-Language choice persists in `localStorage` under `byt_lang_v1`. With nothing stored, the initial language follows `navigator.language` — non-`zh` browsers land on English.
+Language choice persists in `localStorage` under `byt_lang_v1`. With nothing stored the interface starts in `zh-TW` regardless of browser locale — English is opt-in via the toggle.
 
 `render()` stores a `{type, style}` label object rather than a formatted string, so the output header can be re-rendered on a language switch. History entries from 2.0 stored a plain string; `labelText()` passes those through unchanged.
 
@@ -82,7 +82,7 @@ Language choice persists in `localStorage` under `byt_lang_v1`. With nothing sto
 
 - `threadsCard()` builds DOM nodes and sets generated text via `textContent`, never `innerHTML` — reply mode echoes user input into the output, so keep it that way. `innerHTML` is only used for static markup (avatar/footer chrome, theme icons).
 - History: `localStorage` key `byt_history_v1`, last 5 entries, reads and writes both wrapped in try/catch (private mode fails silently).
-- Theme: `data-theme` attribute on `<html>` (`dark` is the default in the markup); all colors are CSS custom properties defined once under `:root, [data-theme="light"]` and overridden under `[data-theme="dark"]`. Style with the existing `--color-*`, `--space-*`, `--text-*` tokens rather than hard-coded values.
+- Theme: `data-theme` attribute on `<html>` (`light` is the default in the markup) persisted under `byt_theme_v1`. An inline script in `<head>` re-applies the stored value before first paint — it hardcodes the same key, so changing `THEME_KEY` means changing both. All colors are CSS custom properties defined once under `:root, [data-theme="light"]` and overridden under `[data-theme="dark"]`. Style with the existing `--color-*`, `--space-*`, `--text-*` tokens rather than hard-coded values.
 
 ## Content rules for corpus edits
 
