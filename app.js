@@ -23,7 +23,7 @@ let lastAction = null;      // 「換一篇」重骰用
 let lastResult = null;      // 複製／分享／存紀錄用
 const recentOutputs = {};   // 各 style+type 近期輸出，防連按重複
 
-const STYLE_ORDER = ['basic', 'academic', 'ironic', 'interpellation', 'crisis', 'warmth', 'thread'];
+const STYLE_ORDER = ['basic', 'slogan', 'academic', 'ironic', 'interpellation', 'crisis', 'warmth', 'thread'];
 
 /* ---------- 模板填充 ---------- */
 function fill(tpl, vals) {
@@ -37,10 +37,12 @@ function drawVals(fieldVals) {
   const [c, c2] = pickN(W.c, 2);
   const [buzzword, buzzword2] = pickN(W.buzzwords, 2);
   const [jargon, jargon2, jargon3] = pickN(W.jargon, 3);
+  const [stuck, stuck2] = pickN(W.stuck, 2);
   const vals = {
     subject: pick(W.subjects),
     a, a2, b, b2, c, c2, buzzword, buzzword2,
     jargon, jargon2, jargon3,
+    stuck, stuck2,
     topic: pick(W.topics),
     // 非回覆模式也可能抽到含 {keyword} 的模板（海巡型），給隨機預設值
     keyword: pick(W.a),

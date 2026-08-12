@@ -42,9 +42,11 @@ drawTags()   → hashtags
 
 ### Placeholder contract
 
-`{subject} {a} {a2} {b} {b2} {c} {c2} {buzzword} {buzzword2} {jargon} {jargon2} {jargon3} {topic} {keyword} {keyword2}`
+`{subject} {a} {a2} {b} {b2} {c} {c2} {buzzword} {buzzword2} {jargon} {jargon2} {jargon3} {topic} {stuck} {stuck2} {keyword} {keyword2}`
 
-`fill()` leaves unknown tokens verbatim, so a typo'd placeholder ships to the user as literal `{foo}`. `drawVals()` uses `pickN` for the paired/tripled slots — the `a`/`b`/`c`/`buzzwords` pools need ≥ 2 entries and `jargon` needs ≥ 3, or `undefined` leaks into output.
+`fill()` leaves unknown tokens verbatim, so a typo'd placeholder ships to the user as literal `{foo}`. `drawVals()` uses `pickN` for the paired/tripled slots — the `a`/`b`/`c`/`buzzwords`/`stuck` pools need ≥ 2 entries and `jargon` needs ≥ 3, or `undefined` leaks into output.
+
+`{stuck}`/`{stuck2}` (the 卡點 pool, drawn from 順起來版's "什麼都卡" framing) has no matching advanced-mode input field — it is random-only.
 
 ### Adding or changing a style
 
@@ -65,6 +67,7 @@ A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is ren
 `data/style-guide.md` is the sourced analysis behind the corpus, including a full URL list graded 官方 / 一手 / 二手 / 論壇 and an honest list of unverified items. Its constraints govern `data/corpus.js`:
 
 - Imitate **speech style only**. No factual allegations, personal attacks, or private-life content about any real person.
+- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6 is the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
 - Every new template keeps a trailing provenance comment — `〔原站〕`, `〔一手〕`, `〔二手〕`, or `〔論壇〕` — matching the existing entries.
 - The parody disclaimer in the `index.html` footer and in the README must stay.
 
