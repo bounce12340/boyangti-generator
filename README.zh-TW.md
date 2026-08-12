@@ -51,6 +51,7 @@
 | ↗ **分享到 Threads** | 一鍵帶文字開啟 Threads 發文視窗。 |
 | 🔁 **換一篇 · 📋 複製 · 🕘 紀錄** | 同參數重骰、一鍵複製附字數、最近 5 筆存於 `localStorage`。 |
 | 🔧 **進階模式** | 自己填關鍵詞，模板會自動收斂到真的用得到這些詞的那幾則。 |
+| 🌐 **中英介面切換** | 介面可切中／英並記住選擇。**產出的內容一律是繁體中文**——語料庫的笑點翻成英文就不成立了。 |
 | 🌙 **深淺色主題 · 📱 手機 RWD** | 375px 實測不破版。 |
 
 ### 八種公式風格
@@ -88,13 +89,14 @@ python3 -m http.server 8000     # → http://localhost:8000
 
 ## 🏗 架構
 
-五個檔案。`data/corpus.js` 宣告全域 `CORPUS`，**必須**先於 `app.js` 載入——`app.js` 本身不含任何文案，所有使用者看到的字都來自語料庫。
+六個檔案。`data/corpus.js`（全域 `CORPUS`）與 `data/i18n.js`（全域 `I18N`）**必須**先於 `app.js` 載入——`app.js` 本身不含任何文案：產生的字來自語料庫，介面的字來自語言包。
 
 ```
-index.html          標記與兩個 script 標籤（載入順序有意義）
+index.html          標記與 script 標籤（載入順序有意義）
 style.css           :root / [data-theme="dark"] 下的設計 token
-app.js              產生引擎、渲染、儲存、主題
+app.js              產生引擎、渲染、儲存、主題、語言
 data/corpus.js      所有模板與詞庫
+data/i18n.js        介面字串，中／英兩包
 data/style-guide.md 風格分析與分級來源清單
 ```
 

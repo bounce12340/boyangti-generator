@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>伯洋體產生器</title>
-<meta name="description" content="一鍵生成「有聽跟沒聽一樣」的伯洋體貼文與回覆——政治語言的幽默諷刺／媒體識讀小工具。">
+<title data-i18n="meta.title">伯洋體產生器</title>
+<meta name="description" data-i18n-content="meta.desc" content="一鍵生成「有聽跟沒聽一樣」的伯洋體貼文與回覆——政治語言的幽默諷刺／媒體識讀小工具。">
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -14,88 +14,92 @@
   <div class="logo">
     <div class="logo-icon">🗣</div>
     <div>
-      <div class="logo-text">伯洋體產生器</div>
-      <div class="logo-sub">政治語言生態系感知工具</div>
+      <div class="logo-text" data-i18n="logo.name">伯洋體產生器</div>
+      <div class="logo-sub" data-i18n="logo.sub">政治語言生態系感知工具</div>
     </div>
   </div>
-  <button class="theme-toggle" data-theme-toggle aria-label="切換主題"></button>
+  <div class="header-actions">
+    <button class="lang-toggle" data-lang-toggle data-i18n-aria="a11y.lang" aria-label="切換語言"></button>
+    <button class="theme-toggle" data-theme-toggle data-i18n-aria="a11y.theme" aria-label="切換主題"></button>
+  </div>
 </header>
 
 <main>
   <div class="container">
     <div class="hero">
-      <div class="badge">✨ 伯洋體 2.0 · 台北順起來</div>
-      <h1>伯洋體<br>產生器</h1>
-      <p>一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇回應了但等於沒回應的廢話體回覆。</p>
+      <div class="badge" data-i18n="hero.badge">✨ 伯洋體 2.0 · 台北順起來</div>
+      <h1><span data-i18n="hero.title1">伯洋體</span><br><span data-i18n="hero.title2">產生器</span></h1>
+      <p data-i18n="hero.lede">一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇回應了但等於沒回應的廢話體回覆。</p>
+      <p class="lang-note" id="lang-note" data-i18n="note.zhOnly" hidden></p>
     </div>
 
     <div class="form-card">
       <div class="mode-switch" role="tablist">
-        <button class="mode-btn active" data-mode="post">📝 產生貼文</button>
-        <button class="mode-btn" data-mode="reply">💬 產生回覆</button>
+        <button class="mode-btn active" data-mode="post" data-i18n="mode.post">📝 產生貼文</button>
+        <button class="mode-btn" data-mode="reply" data-i18n="mode.reply">💬 產生回覆</button>
       </div>
 
       <div id="style-block">
-        <span class="form-section-label">公式風格</span>
+        <span class="form-section-label" data-i18n="label.style">公式風格</span>
         <div class="formula-tabs" id="style-tabs"></div>
       </div>
 
       <div class="density-row">
         <div class="density-head">
-          <span class="form-section-label" style="margin-bottom:0">廢話濃度</span>
+          <span class="form-section-label" style="margin-bottom:0" data-i18n="label.density">廢話濃度</span>
           <span class="density-hint" id="density-hint"></span>
         </div>
-        <input type="range" id="density" min="0" max="2" step="1" value="1" aria-label="廢話濃度">
-        <div class="density-scale"><span>低</span><span>中</span><span>高</span></div>
+        <input type="range" id="density" min="0" max="2" step="1" value="1" data-i18n-aria="a11y.density" aria-label="廢話濃度">
+        <div class="density-scale"><span data-i18n="scale.low">低</span><span data-i18n="scale.mid">中</span><span data-i18n="scale.high">高</span></div>
       </div>
 
       <div id="post-panel">
         <div class="btn-row">
-          <button class="btn-primary" id="btn-quick">📝 一鍵產生貼文</button>
+          <button class="btn-primary" id="btn-quick" data-i18n="btn.quick">📝 一鍵產生貼文</button>
         </div>
         <details class="advanced">
-          <summary>🔧 進階：自己填關鍵詞</summary>
+          <summary data-i18n="adv.summary">🔧 進階：自己填關鍵詞</summary>
           <div class="form-grid">
             <div class="field">
-              <label for="subject">對象 / 市民</label>
-              <input type="text" id="subject" placeholder="台北市民、年輕人…">
+              <label for="subject" data-i18n="field.subject">對象 / 市民</label>
+              <input type="text" id="subject" data-i18n-ph="ph.subject" placeholder="台北市民、年輕人…">
             </div>
             <div class="field">
-              <label for="noun_a">核心抽象名詞 A</label>
-              <input type="text" id="noun_a" placeholder="休息、空間、時間…">
+              <label for="noun_a" data-i18n="field.a">核心抽象名詞 A</label>
+              <input type="text" id="noun_a" data-i18n-ph="ph.a" placeholder="休息、空間、時間…">
             </div>
             <div class="field">
-              <label for="noun_b">連鎖效益 B</label>
-              <input type="text" id="noun_b" placeholder="消費、互動、能量…">
+              <label for="noun_b" data-i18n="field.b">連鎖效益 B</label>
+              <input type="text" id="noun_b" data-i18n-ph="ph.b" placeholder="消費、互動、能量…">
             </div>
             <div class="field">
-              <label for="noun_c">終極目標 C</label>
-              <input type="text" id="noun_c" placeholder="城市活力、認同感…">
+              <label for="noun_c" data-i18n="field.c">終極目標 C</label>
+              <input type="text" id="noun_c" data-i18n-ph="ph.c" placeholder="城市活力、認同感…">
             </div>
             <div class="field full">
-              <label for="buzzword">學術關鍵詞（進階）</label>
-              <input type="text" id="buzzword" placeholder="第三空間感知、韌性對齊、生態系治理…">
+              <label for="buzzword" data-i18n="field.buzzword">學術關鍵詞（進階）</label>
+              <input type="text" id="buzzword" data-i18n-ph="ph.buzzword" placeholder="第三空間感知、韌性對齊、生態系治理…">
             </div>
             <div class="field full">
-              <label for="topic">政策主題</label>
-              <input type="text" id="topic" placeholder="交通、治安、文化創意…">
+              <label for="topic" data-i18n="field.topic">政策主題</label>
+              <input type="text" id="topic" data-i18n-ph="ph.topic" placeholder="交通、治安、文化創意…">
             </div>
           </div>
           <div class="btn-row">
-            <button class="btn-primary" id="btn-generate">🎤 產生伯洋體</button>
-            <button class="btn-ghost" id="btn-random">🎲 隨機填入</button>
+            <button class="btn-primary" id="btn-generate" data-i18n="btn.generate">🎤 產生伯洋體</button>
+            <button class="btn-ghost" id="btn-random" data-i18n="btn.random">🎲 隨機填入</button>
           </div>
         </details>
       </div>
 
       <div id="reply-panel" hidden>
         <div class="field full" style="margin-bottom: var(--space-4)">
-          <label for="reply-input">貼上對方的留言／貼文</label>
-          <textarea id="reply-input" placeholder="把對方的留言貼進來，我來回應個寂寞…"></textarea>
+          <label for="reply-input" data-i18n="reply.label">貼上對方的留言／貼文</label>
+          <textarea id="reply-input" data-i18n-ph="reply.ph" placeholder="把對方的留言貼進來，我來回應個寂寞…"></textarea>
         </div>
-        <div class="reply-warn" id="reply-warn" hidden>請先貼上對方的留言，才有辦法回應個寂寞。</div>
+        <div class="reply-warn" id="reply-warn" data-i18n="reply.warn" hidden>請先貼上對方的留言，才有辦法回應個寂寞。</div>
         <div class="btn-row">
-          <button class="btn-primary" id="btn-reply">💬 產生廢話回覆</button>
+          <button class="btn-primary" id="btn-reply" data-i18n="btn.reply">💬 產生廢話回覆</button>
         </div>
       </div>
     </div>
@@ -107,33 +111,28 @@
       </div>
       <div class="output-body" id="output-body"></div>
       <div class="output-actions">
-        <button id="btn-again">🔁 換一篇</button>
-        <button id="btn-copy">📋 複製</button>
-        <button id="btn-share">↗ 分享到 Threads</button>
+        <button id="btn-again" data-i18n="btn.again">🔁 換一篇</button>
+        <button id="btn-copy" data-i18n="btn.copy">📋 複製</button>
+        <button id="btn-share" data-i18n="btn.share">↗ 分享到 Threads</button>
       </div>
     </div>
 
     <section class="history" id="history-section" hidden>
-      <h2>最近產生</h2>
+      <h2 data-i18n="history.title">最近產生</h2>
       <div id="history-list"></div>
     </section>
 
-    <div class="formula-hint">
-      <strong>伯洋體公式懶人包：</strong><br>
-      「讓 <strong>[對象]</strong> 找回他失去的 <strong>[A]</strong> → 有了 A 自然就有 <strong>[B]</strong> → B 帶來的正是 <strong>[C]</strong> 的根本 → 就是那麼簡單的道理而已。」
-      <hr>
-      <strong>2026 版公式（順起來版）：</strong><br>
-      「<strong>[卡點A]</strong> 卡、<strong>[卡點B]</strong> 卡，什麼都卡 → 為什麼卡？因為接點斷了 → 把斷掉的接點連起來 → <strong>接起來，就順了。</strong>」
-    </div>
+    <div class="formula-hint" data-i18n-html="formula.box"></div>
   </div>
 </main>
 
 <footer class="watermark">
-  伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已
-  <div class="disclaimer">本站為諷刺／娛樂用途之戲仿（parody）創作，所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。</div>
+  <span data-i18n="footer.mark">伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已</span>
+  <div class="disclaimer" data-i18n="footer.disclaimer">本站為諷刺／娛樂用途之戲仿（parody）創作，所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。</div>
 </footer>
 
 <script src="data/corpus.js"></script>
+<script src="data/i18n.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

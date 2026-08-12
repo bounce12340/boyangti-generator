@@ -19,7 +19,7 @@ Verification is manual: open the page, exercise each style tab × each density s
 
 ## Architecture
 
-Four files, one hard dependency edge: `data/corpus.js` declares a global `const CORPUS` and **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — every string a user sees comes from `CORPUS`.
+Five files, one hard dependency edge: `data/corpus.js` (global `CORPUS`) and `data/i18n.js` (global `I18N`) **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — generated strings come from `CORPUS`, interface strings from `I18N`.
 
 ### Generation pipeline (`app.js`)
 
@@ -56,6 +56,27 @@ Each entry in `CORPUS.styles` is `{ name, templates }` plus three optional flags
 - `threadSets` **instead of** `templates` — an array of 5-post sets, each post `{ text, tags }`. This is a separate branch in `makePost()` and returns `{ thread: [...] }`, which changes rendering, `shareText()`, and the share intent.
 
 A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it.
+
+### Interface language (`data/i18n.js`)
+
+The UI chrome is bilingual (`zh-TW` / `en`); **generated output is always Traditional Chinese** and must stay that way — the corpus is the joke, and it does not survive translation. English mode says so via the `note.zhOnly` line under the hero.
+
+`applyLang(lang)` walks four attribute contracts in `index.html` and rewrites everything in place:
+
+| Attribute | Applied to |
+|---|---|
+| `data-i18n` | `textContent` |
+| `data-i18n-html` | `innerHTML` — **authored strings in `I18N` only**, never user input |
+| `data-i18n-ph` | `placeholder` |
+| `data-i18n-aria` / `data-i18n-content` | `aria-label` / `content` |
+
+It then rebuilds the style tabs (`initTabs()` clears and re-renders, so it is safe to call repeatedly), the density hint, the history list, and the output label. Adding a UI string means adding the key to **both** language packs and tagging the element — a missing key falls back to `zh-TW`, then to the key name.
+
+Anything rendered from JS rather than markup (style tab names, output labels, thread counters, the copy-button confirmation, card chrome) goes through `t(key, vars)` / `styleName(key)`. English style names live in `I18N.en.styles`, keyed by style key; `zh-TW` has `styles: null` and falls back to `CORPUS.styles[key].name`.
+
+Language choice persists in `localStorage` under `byt_lang_v1`. With nothing stored, the initial language follows `navigator.language` — non-`zh` browsers land on English.
+
+`render()` stores a `{type, style}` label object rather than a formatted string, so the output header can be re-rendered on a language switch. History entries from 2.0 stored a plain string; `labelText()` passes those through unchanged.
 
 ### Rendering, storage, theming
 

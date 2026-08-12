@@ -19,11 +19,67 @@ function pickN(arr, n) {
 /* ---------- 狀態 ---------- */
 let currentStyle = 'basic';
 let currentMode = 'post';   // 'post' | 'reply'
+let currentLang = 'zh-TW';  // 'zh-TW' | 'en'（只影響介面外殼，產出恆為中文）
 let lastAction = null;      // 「換一篇」重骰用
 let lastResult = null;      // 複製／分享／存紀錄用
+let lastLabel = null;       // 切語言時重畫輸出標題用
 const recentOutputs = {};   // 各 style+type 近期輸出，防連按重複
 
 const STYLE_ORDER = ['basic', 'slogan', 'academic', 'ironic', 'interpellation', 'crisis', 'warmth', 'thread'];
+
+/* ---------- 介面語言 ----------
+ * 只翻譯介面外殼；產生出來的內容一律是繁體中文（笑點建立在中文上）。 */
+const LANG_KEY = 'byt_lang_v1';
+
+function t(key, vars) {
+  const pack = I18N[currentLang] || I18N['zh-TW'];
+  let s = pack[key] !== undefined ? pack[key] : (I18N['zh-TW'][key] !== undefined ? I18N['zh-TW'][key] : key);
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] !== undefined ? vars[k] : m));
+  return s;
+}
+
+/* 英文模式下用語言包裡的風格名，否則用語料庫原名 */
+function styleName(key) {
+  const map = (I18N[currentLang] || {}).styles;
+  return (map && map[key]) || CORPUS.styles[key].name;
+}
+
+function applyLang(lang) {
+  currentLang = I18N[lang] ? lang : 'zh-TW';
+  try { localStorage.setItem(LANG_KEY, currentLang); } catch { /* 隱私模式可能失敗，忽略 */ }
+
+  document.documentElement.lang = currentLang;
+  document.title = t('meta.title');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  // data-i18n-html 僅供語言包內的靜態標記使用，不接受任何使用者輸入
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-content]').forEach(el => { el.setAttribute('content', t(el.dataset.i18nContent)); });
+
+  const note = $('lang-note');
+  note.hidden = !t('note.zhOnly');
+
+  const btn = document.querySelector('[data-lang-toggle]');
+  if (btn) btn.textContent = t('next');
+
+  initTabs();
+  updateDensityHint();
+  renderHistory();
+  if (lastLabel) $('output-label').textContent = labelText(lastLabel);
+}
+
+function labelText(l) {
+  if (typeof l === 'string') return l; // 2.0 舊版歷史紀錄存的是字串，相容處理
+  if (l.type === 'reply') return t('out.reply');
+  if (l.type === 'quick') return `${styleName(l.style)}${t('out.sep')}${t('out.quick')}`;
+  return styleName(l.style);
+}
+
+function updateDensityHint() {
+  $('density-hint').textContent = t('density.' + $('density').value);
+}
 
 /* ---------- 模板填充 ---------- */
 function fill(tpl, vals) {
@@ -185,9 +241,12 @@ function threadsCard(post, numLabel) {
   head.className = 'tc-head';
   head.innerHTML =
     '<div class="tc-avatar">🗣</div>' +
-    '<div class="tc-id"><span class="tc-name">伯洋體產生器</span>' +
-    '<span class="tc-handle">@boyangti_parody · 剛剛</span></div>' +
-    '<span class="tc-badge">戲仿</span>';
+    '<div class="tc-id"><span class="tc-name"></span>' +
+    '<span class="tc-handle"></span></div>' +
+    '<span class="tc-badge"></span>';
+  head.querySelector('.tc-name').textContent = t('logo.name');
+  head.querySelector('.tc-handle').textContent = t('card.handle');
+  head.querySelector('.tc-badge').textContent = t('card.badge');
   card.appendChild(head);
 
   if (numLabel) {
@@ -231,16 +290,18 @@ function shareText(result) {
 
 function render(result, label) {
   lastResult = result;
+  lastLabel = label;
   const bodyEl = $('output-body');
   bodyEl.innerHTML = '';
   const group = document.createElement('div');
   group.className = 'thread-group';
   const posts = result.thread || [{ text: result.text, tags: result.tags }];
-  posts.forEach((p, i) => group.appendChild(threadsCard(p, result.thread ? `串文 ${i + 1}／${posts.length}` : null)));
+  posts.forEach((p, i) => group.appendChild(
+    threadsCard(p, result.thread ? t('out.thread', { i: i + 1, n: posts.length }) : null)));
   bodyEl.appendChild(group);
 
-  $('output-label').textContent = label;
-  $('char-count').textContent = `${result.text.replace(/\s/g, '').length} 字`;
+  $('output-label').textContent = labelText(label);
+  $('char-count').textContent = `${result.text.replace(/\s/g, '').length} ${t('out.chars')}`;
   const out = $('output');
   out.classList.remove('visible');
   void out.offsetWidth; // 重觸發動畫
@@ -277,13 +338,13 @@ function renderHistory() {
     row.className = 'history-item';
     const meta = document.createElement('div');
     meta.className = 'history-meta';
-    meta.textContent = `${item.label} · ${new Date(item.ts).toLocaleString('zh-TW', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+    meta.textContent = `${labelText(item.label)} · ${new Date(item.ts).toLocaleString(t('locale'), { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
     const preview = document.createElement('div');
     preview.className = 'history-preview';
     preview.textContent = item.text.replace(/\s+/g, ' ').slice(0, 60) + (item.text.length > 60 ? '…' : '');
     const btn = document.createElement('button');
     btn.className = 'btn-ghost btn-small';
-    btn.textContent = '複製';
+    btn.textContent = t('history.copy');
     btn.addEventListener('click', () => copyText(item.text, btn));
     const info = document.createElement('div');
     info.className = 'history-info';
@@ -300,7 +361,7 @@ function copyText(text, btn) {
   const done = () => {
     if (!btn) return;
     const orig = btn.textContent;
-    btn.textContent = '✓ 已複製';
+    btn.textContent = t('btn.copied');
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
   };
@@ -325,13 +386,12 @@ function fallbackCopy(text, done) {
 /* ---------- 事件綁定 ---------- */
 function runAction(action) {
   lastAction = action;
-  const styleName = CORPUS.styles[currentStyle].name;
   if (action.type === 'quick') {
-    render(generateUnique('quick:' + currentStyle, () => makePost(false)), `${styleName}・一鍵貼文`);
+    render(generateUnique('quick:' + currentStyle, () => makePost(false)), { type: 'quick', style: currentStyle });
   } else if (action.type === 'fields') {
-    render(generateUnique('fields:' + currentStyle, () => makePost(true)), styleName);
+    render(generateUnique('fields:' + currentStyle, () => makePost(true)), { type: 'fields', style: currentStyle });
   } else if (action.type === 'reply') {
-    render(generateUnique('reply', () => makeReply(action.input)), '廢話回覆');
+    render(generateUnique('reply', () => makeReply(action.input)), { type: 'reply' });
   }
 }
 
@@ -345,10 +405,11 @@ function setMode(mode) {
 
 function initTabs() {
   const tabs = $('style-tabs');
+  tabs.innerHTML = ''; // 切換語言時重建
   STYLE_ORDER.forEach(key => {
     const btn = document.createElement('button');
     btn.className = 'tab' + (key === currentStyle ? ' active' : '');
-    btn.textContent = CORPUS.styles[key].name;
+    btn.textContent = styleName(key);
     btn.addEventListener('click', () => {
       currentStyle = key;
       tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -384,9 +445,14 @@ function initTheme() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTabs();
   initTheme();
-  renderHistory();
+
+  let saved = null;
+  try { saved = localStorage.getItem(LANG_KEY); } catch { /* 隱私模式可能失敗，忽略 */ }
+  // 沒存過就依瀏覽器語言決定：非中文一律進英文介面
+  applyLang(saved || (/^zh/i.test(navigator.language || '') ? 'zh-TW' : 'en'));
+  document.querySelector('[data-lang-toggle]')
+    .addEventListener('click', () => applyLang(currentLang === 'zh-TW' ? 'en' : 'zh-TW'));
 
   document.querySelectorAll('.mode-btn').forEach(b =>
     b.addEventListener('click', () => setMode(b.dataset.mode)));
@@ -416,9 +482,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.open('https://www.threads.net/intent/post?text=' + encodeURIComponent(text), '_blank', 'noopener');
   });
 
-  // 濃度滑桿文字提示
-  const densityLabels = ['低・點到為止', '中・恰到好處的空泛', '高・資訊量趨近於零'];
-  const updateDensity = () => { $('density-hint').textContent = densityLabels[+$('density').value]; };
-  $('density').addEventListener('input', updateDensity);
-  updateDensity();
+  $('density').addEventListener('input', updateDensityHint);
 });
