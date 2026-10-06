@@ -26,13 +26,17 @@ const I18N = {
     'a11y.lang': '切換語言',
     'a11y.density': '廢話濃度',
 
-    'hero.badge': '✨ 伯洋體 2.0 · 台北順起來',
+    'hero.badge': '伯洋體 2.0',
     'hero.title1': '伯洋體',
     'hero.title2': '產生器',
     'hero.lede': '一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇回應了但等於沒回應的廢話體回覆。',
 
-    'mode.post': '📝 產生貼文',
-    'mode.reply': '💬 產生回覆',
+    'hero.meta': '0.1 秒生成，沒有預算、沒有期程、沒有 KPI',
+    'hero.regen': '再生一篇',
+    'hero.unpack': '拆解這句',
+
+    'mode.post': '產生貼文',
+    'mode.reply': '產生回覆',
 
     'label.style': '公式風格',
     'label.density': '廢話濃度',
@@ -43,16 +47,16 @@ const I18N = {
     'density.1': '中・恰到好處的空泛',
     'density.2': '高・資訊量趨近於零',
 
-    'btn.quick': '📝 一鍵產生貼文',
-    'btn.generate': '🎤 產生伯洋體',
-    'btn.random': '🎲 隨機填入',
-    'btn.reply': '💬 產生廢話回覆',
-    'btn.again': '🔁 換一篇',
-    'btn.copy': '📋 複製',
-    'btn.copied': '✓ 已複製',
-    'btn.share': '↗ 分享到 Threads',
+    'btn.quick': '一鍵產生貼文',
+    'btn.generate': '產生伯洋體',
+    'btn.random': '隨機填入',
+    'btn.reply': '產生廢話回覆',
+    'btn.again': '換一篇',
+    'btn.copy': '複製',
+    'btn.copied': '已複製',
+    'btn.share': '分享到 Threads',
 
-    'adv.summary': '🔧 進階：自己填關鍵詞',
+    'adv.summary': '進階：自己填關鍵詞',
     'field.subject': '對象 / 市民',
     'field.a': '核心抽象名詞 A',
     'field.b': '連鎖效益 B',
@@ -73,8 +77,8 @@ const I18N = {
     'history.title': '最近產生',
     'history.copy': '複製',
 
-    'mode.checklist': '🔍 拆解口號',
-    'btn.checklist': '🔍 拆出該問的問題',
+    'mode.checklist': '拆解口號',
+    'btn.checklist': '拆出該問的問題',
     'chk.label': '口號拆解',
     'chk.label2': '貼上一句口號或政見',
     'chk.ph': '例如：把斷掉的接點連起來，台北就順起來了',
@@ -96,7 +100,6 @@ const I18N = {
     'out.reply': '廢話回覆',
     'out.chars': '字',
     'out.thread': '串文 {i}／{n}',
-    'card.handle': '@boyangti_parody · 剛剛',
     'card.badge': '戲仿',
 
     'formula.box':
@@ -128,13 +131,17 @@ const I18N = {
     'a11y.lang': 'Switch language',
     'a11y.density': 'Waffle density',
 
-    'hero.badge': '✨ Boyangti 2.0 · Let Taipei Flow',
+    'hero.badge': 'Boyangti 2.0',
     'hero.title1': 'Boyangti',
     'hero.title2': 'Generator',
     'hero.lede': 'One click gives you a complete post that sounds profound and says nothing. Or paste someone’s comment and get a reply that responds thoroughly without answering anything.',
 
-    'mode.post': '📝 Generate post',
-    'mode.reply': '💬 Generate reply',
+    'hero.meta': 'Generated in 0.1s. No budget, no timeline, no KPI.',
+    'hero.regen': 'Generate another',
+    'hero.unpack': 'Unpack this one',
+
+    'mode.post': 'Generate post',
+    'mode.reply': 'Generate reply',
 
     'label.style': 'Formula style',
     'label.density': 'Waffle density',
@@ -145,16 +152,16 @@ const I18N = {
     'density.1': 'Mid · pleasantly vacant',
     'density.2': 'High · approaching zero information',
 
-    'btn.quick': '📝 Generate a post',
-    'btn.generate': '🎤 Generate Boyangti',
-    'btn.random': '🎲 Fill randomly',
-    'btn.reply': '💬 Generate reply',
-    'btn.again': '🔁 Reroll',
-    'btn.copy': '📋 Copy',
-    'btn.copied': '✓ Copied',
-    'btn.share': '↗ Share to Threads',
+    'btn.quick': 'Generate a post',
+    'btn.generate': 'Generate Boyangti',
+    'btn.random': 'Fill randomly',
+    'btn.reply': 'Generate reply',
+    'btn.again': 'Reroll',
+    'btn.copy': 'Copy',
+    'btn.copied': 'Copied',
+    'btn.share': 'Share to Threads',
 
-    'adv.summary': '🔧 Advanced: supply your own keywords',
+    'adv.summary': 'Advanced: supply your own keywords',
     'field.subject': 'Subject / citizens',
     'field.a': 'Core abstract noun A',
     'field.b': 'Knock-on effect B',
@@ -175,8 +182,8 @@ const I18N = {
     'history.title': 'Recently generated',
     'history.copy': 'Copy',
 
-    'mode.checklist': '🔍 Unpack a slogan',
-    'btn.checklist': '🔍 Surface the questions',
+    'mode.checklist': 'Unpack a slogan',
+    'btn.checklist': 'Surface the questions',
     'chk.label': 'Slogan unpacked',
     'chk.label2': 'Paste a slogan or a policy claim',
     'chk.ph': 'e.g. Reconnect the broken junctions and Taipei will flow',
@@ -198,7 +205,6 @@ const I18N = {
     'out.reply': 'Waffle reply',
     'out.chars': 'chars',
     'out.thread': 'Post {i} of {n}',
-    'card.handle': '@boyangti_parody · just now',
     'card.badge': 'parody',
 
     'formula.box':

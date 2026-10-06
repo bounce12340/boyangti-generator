@@ -56,7 +56,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing. |
 | 🔍 **Unpack a slogan** | The reverse tool. Paste a slogan and get the accountability questions it dodges — who owns it, what it costs, by when, what counts as success, by what authority, at whose cost, what if it fails. **It never generates answers**, only questions plus a literal scan of which concrete elements are absent. |
 | 🎚 **Waffle density** | Three levels — *low* (restrained) / *medium* (pleasantly vacant) / *high* (information content approaching zero) — controlling ladder depth, filler count, and transition phrases. |
-| 🧵 **Threads cards** | Output is rendered as mock Threads posts, including a 5-post thread mode. |
+| 🧵 **Thread mode** | One style emits a full 5-post thread, typeset as a sequence. |
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
 | 🔁 **Reroll · 📋 Copy · 🕘 History** | Reroll with the same settings, copy with a character count, and keep the last 5 results in `localStorage`. |
 | 🔧 **Advanced mode** | Supply your own keywords; template selection narrows to the templates that actually use them. |
@@ -109,7 +109,7 @@ unpack-mode questions from the checklist.
 
 ```
 index.html          markup + the script tags (load order matters)
-style.css           design tokens under :root / [data-theme="dark"]
+style.css           design tokens under :root / [data-theme="dark"] / [data-mode]
 app.js              generation engine, rendering, storage, theming, language
 data/corpus.js      all templates and word pools
 data/i18n.js        interface strings, zh-TW + en
