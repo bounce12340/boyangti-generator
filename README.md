@@ -53,7 +53,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | | |
 |---|---|
 | 📝 **One-click post** | Fill in nothing. Get a 100–300 character post with an opener, a multi-layer causal ladder, a closing line, and hashtags. |
-| 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing. |
+| 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing — including the deflection patterns of the late campaign: the rhetorical "who would believe…", "they don't want to talk policy", "I've signed every debate invite", "smearing is always faster than debunking". |
 | 🔍 **Unpack a slogan** | The reverse tool. Paste a slogan and get the accountability questions it dodges — who owns it, what it costs, by when, what counts as success, by what authority, at whose cost, what if it fails. **It never generates answers**, only questions plus a literal scan of which concrete elements are absent. |
 | 🎚 **Waffle density** | Three levels — *low* (restrained) / *medium* (pleasantly vacant) / *high* (information content approaching zero) — controlling ladder depth, filler count, and transition phrases. |
 | 🧵 **Thread mode** | One style emits a full 5-post thread, typeset as a sequence. |
@@ -77,7 +77,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | **Threads 串文版** — Thread | Emits a full 5-post thread with hashtags, drawn from 7 skeletons. |
 
 Corpus size: **173 templates** across 8 styles, **297 vocabulary entries** across 8 word pools,
-plus 16 reply templates, 39 filler lines, 35 closers, and 48 hashtags.
+plus 29 reply templates, 39 filler lines, 35 closers, and 52 hashtags.
 
 ---
 

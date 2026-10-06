@@ -40,6 +40,8 @@ drawTags()   → hashtags
 
 ### Reply mode
 
+`CORPUS.replies` carries two generations of templates: the original deflections, and a block derived from `style-guide.md` §10 (late-campaign response patterns). In the §10 block every piece of the original *accusation* is replaced by `{keyword}`, so the template keeps the shape of the response and none of the content being responded to — keep new reply templates to that rule.
+
 `extractKeywords()` is a hand-rolled CJK tokenizer — it splits Chinese runs on a stop-character class, keeps segments ≥ 2 chars (capped at 6), sorts longest-first, drops fragments contained in longer keeps, then samples up to 3. The results bind `{keyword}` / `{keyword2}` into `CORPUS.replies` templates. Reply mode always passes `noOpener: true`.
 
 ### Placeholder contract
@@ -116,7 +118,7 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 `data/style-guide.md` is the sourced analysis behind the corpus, including a full URL list graded 官方 / 一手 / 二手 / 論壇 and an honest list of unverified items. Its constraints govern `data/corpus.js`:
 
 - Imitate **speech style only**. No factual allegations, personal attacks, or private-life content about any real person.
-- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6 is the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
+- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6 and §10.4 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
 - Every new template keeps a trailing provenance comment — `〔原站〕`, `〔一手〕`, `〔二手〕`, or `〔論壇〕` — matching the existing entries.
 - The parody disclaimer in the `index.html` footer and in the README must stay.
 
