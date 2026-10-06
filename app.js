@@ -290,52 +290,34 @@ function checklistText(input, groups) {
 }
 
 /* ---------- 輸出渲染（Threads 卡片） ---------- */
-function threadsCard(post, numLabel) {
-  const card = document.createElement('article');
-  card.className = 'threads-card';
-
-  const head = document.createElement('div');
-  head.className = 'tc-head';
-  head.innerHTML =
-    '<div class="tc-avatar">🗣</div>' +
-    '<div class="tc-id"><span class="tc-name"></span>' +
-    '<span class="tc-handle"></span></div>' +
-    '<span class="tc-badge"></span>';
-  head.querySelector('.tc-name').textContent = t('logo.name');
-  head.querySelector('.tc-handle').textContent = t('card.handle');
-  head.querySelector('.tc-badge').textContent = t('card.badge');
-  card.appendChild(head);
+function postCard(post, numLabel) {
+  const art = document.createElement('article');
+  art.className = 'post';
 
   if (numLabel) {
-    const num = document.createElement('div');
-    num.className = 'tc-num';
-    num.textContent = numLabel;
-    card.appendChild(num);
+    const n = document.createElement('div');
+    n.className = 'post-num';
+    n.textContent = numLabel;
+    art.appendChild(n);
   }
 
   const body = document.createElement('div');
-  body.className = 'tc-text';
+  body.className = 'post-text';
   body.textContent = post.text; // textContent 防 XSS（回覆模式會夾帶使用者輸入）
-  card.appendChild(body);
+  art.appendChild(body);
 
   if (post.tags && post.tags.length) {
     const tags = document.createElement('div');
-    tags.className = 'tc-tags';
-    post.tags.forEach(t => {
+    tags.className = 'post-tags';
+    post.tags.forEach(tag => {
       const s = document.createElement('span');
-      s.className = 'hashtag';
-      s.textContent = t;
+      s.textContent = tag;
       tags.appendChild(s);
     });
-    card.appendChild(tags);
+    art.appendChild(tags);
   }
 
-  const foot = document.createElement('div');
-  foot.className = 'tc-foot';
-  foot.innerHTML = `<span>♡ ${17 + rand(983)}</span><span>💬 ${3 + rand(97)}</span><span>🔁 ${1 + rand(49)}</span><span>↗</span>`;
-  card.appendChild(foot);
-
-  return card;
+  return art;
 }
 
 /* 拆解結果的渲染。全程 textContent——這裡會把使用者輸入回填到畫面上 */
@@ -350,42 +332,49 @@ function checklistCard(result) {
     if (parent) parent.appendChild(n);
     return n;
   };
+  const section = (headText) => {
+    const sec = el('section', 'chk-sec', undefined, wrap);
+    el('div', 'chk-sec-head', headText, sec);
+    return sec;
+  };
 
   // 被拆解的原句
   const quote = el('blockquote', 'chk-quote', result.input, wrap);
   quote.setAttribute('lang', 'zh-TW');
 
   // 具體元素盤點：只陳述文本裡找不找得到，不做評價
-  const scan = el('div', 'chk-scan', undefined, wrap);
-  el('div', 'chk-scan-head', t('chk.scanHead', { n: result.missing, total: result.detected.length }), scan);
-  const chips = el('div', 'chk-chips', undefined, scan);
+  const scan = section(t('chk.scanHead', { n: result.missing, total: result.detected.length }));
+  const list = el('div', 'chk-scan', undefined, scan);
   result.detected.forEach(({ d, hit }) => {
     const pack = d[currentLang] || d['zh-TW'];
-    el('span', 'chk-chip' + (hit ? ' hit' : ''), (hit ? '✓ ' : '✗ ') + (hit ? pack.has : pack.none), chips);
+    const row = el('div', 'chk-item' + (hit ? ' hit' : ''), undefined, list);
+    el('span', 'chk-flag', hit ? '✓' : '✗', row);
+    el('span', 'chk-text', hit ? pack.has : pack.none, row);
   });
 
   // 邏輯模型落點。五層全空也要照常顯示——那本身就是最有資訊量的結果
-  const lad = el('div', 'chk-ladder', undefined, wrap);
-  el('div', 'chk-scan-head', t('chk.ladderHead'), lad);
+  const lad = section(t('chk.ladderHead'));
   result.ladder.forEach(({ rung, found }) => {
     const pack = rung[currentLang] || rung['zh-TW'];
     const row = el('div', 'chk-rung' + (found.length ? ' on' : ''), undefined, lad);
     el('span', 'chk-rung-name', pack.name, row);
-    el('span', 'chk-rung-desc', pack.desc, row);
-    el('span', 'chk-rung-hit', found.length ? found.join('、') : '—', row);
+    el('span', 'chk-bar', undefined, row);
+    el('span', 'chk-rung-hit', found.length ? found.join('、') : pack.desc, row);
   });
   if (!result.ladder.some(l => l.found.length)) el('p', 'chk-none', t('chk.ladderNone'), lad);
   el('p', 'chk-note', t('chk.ladderNote'), lad);
 
-  // 問責提問
-  result.groups.forEach(g => {
-    const sec = el('section', 'chk-group' + (g.answered ? ' answered' : ''), undefined, wrap);
-    const h = el('div', 'chk-group-head', undefined, sec);
-    el('span', 'chk-icon', g.icon, h);
-    el('h3', undefined, g.title, h);
-    if (g.answered) el('span', 'chk-tag', t('chk.answered'), h);
-    el('p', 'chk-lead', g.lead, sec);
-    const ul = el('ul', 'chk-q', undefined, sec);
+  // 問責提問：編號的連續文件
+  const qs = section(t('chk.count', { n: result.groups.reduce((a, g) => a + g.questions.length, 0) }));
+  result.groups.forEach((g, i) => {
+    const sec = el('div', 'chk-group' + (g.answered ? ' answered' : ''), undefined, qs);
+    el('span', 'chk-no', String(i + 1), sec);
+    const col = el('div', undefined, undefined, sec);
+    const head = el('div', undefined, undefined, col);
+    el('h3', undefined, g.title, head);
+    if (g.answered) el('span', 'chk-tag', t('chk.answered'), head);
+    el('p', 'chk-lead', g.lead, col);
+    const ul = el('ul', 'chk-q', undefined, col);
     g.questions.forEach(q => el('li', undefined, q, ul));
   });
 
@@ -409,19 +398,16 @@ function render(result, label) {
   if (result.checklist) {
     bodyEl.appendChild(checklistCard(result));
   } else {
-    const group = document.createElement('div');
-    group.className = 'thread-group';
     const posts = result.thread || [{ text: result.text, tags: result.tags }];
-    posts.forEach((p, i) => group.appendChild(
-      threadsCard(p, result.thread ? t('out.thread', { i: i + 1, n: posts.length }) : null)));
-    bodyEl.appendChild(group);
+    posts.forEach((p, i) => bodyEl.appendChild(
+      postCard(p, result.thread ? t('out.thread', { i: i + 1, n: posts.length }) : null)));
   }
 
   // 拆解結果是固定的，重骰沒有意義；分享用的是問題清單而非戲仿貼文
   $('btn-again').hidden = !!result.checklist;
   $('output-label').textContent = labelText(label);
   $('char-count').textContent = result.checklist
-    ? t('chk.count', { n: result.groups.reduce((a, g) => a + g.questions.length, 0) })
+    ? ''
     : `${result.text.replace(/\s/g, '').length} ${t('out.chars')}`;
   const out = $('output');
   out.classList.remove('visible');
@@ -464,7 +450,7 @@ function renderHistory() {
     preview.className = 'history-preview';
     preview.textContent = item.text.replace(/\s+/g, ' ').slice(0, 60) + (item.text.length > 60 ? '…' : '');
     const btn = document.createElement('button');
-    btn.className = 'btn-ghost btn-small';
+    btn.className = 'btn btn-line';
     btn.textContent = t('history.copy');
     btn.addEventListener('click', () => copyText(item.text, btn));
     const info = document.createElement('div');
@@ -521,7 +507,8 @@ function runAction(action) {
 
 function setMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  document.documentElement.setAttribute('data-mode', mode);
+  document.querySelectorAll('.mode').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
   $('post-panel').hidden = mode !== 'post';
   $('reply-panel').hidden = mode !== 'reply';
   $('checklist-panel').hidden = mode !== 'checklist';
@@ -578,6 +565,70 @@ function initTheme() {
   });
 }
 
+/* ---------- 首屏：讓產品自己示範 ----------
+ * 載入時產一篇順起來版（低濃度＝短而銳利），逐字打出來。
+ * 這是全站唯一一個非使用者觸發的動畫，且尊重 prefers-reduced-motion。 */
+let heroText = '';
+let heroTimer = null;
+
+function heroSpecimen() {
+  const prevStyle = currentStyle;
+  const slider = $('density');
+  const prevDensity = slider.value;
+  currentStyle = 'slogan';   // 最具代表性的公式
+  slider.value = '0';        // 點到為止：沒有開場白、沒有填充句
+  // 首屏要在折線以上講完，太長的模板重抽；抽不到就取最短的那篇
+  let best = null;
+  for (let i = 0; i < 12; i++) {
+    const text = makePost(false).text;
+    const len = text.replace(/\s/g, '').length;
+    if (!best || len < best.len) best = { text, len };
+    if (len <= 85) break;
+  }
+  slider.value = prevDensity;
+  currentStyle = prevStyle;
+  return best.text;
+}
+
+function typeHero(text) {
+  const box = $('hero-specimen');
+  heroText = text;
+  clearInterval(heroTimer);
+  box.classList.remove('done');
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    box.textContent = text;
+    box.classList.add('done');
+    return;
+  }
+  box.textContent = '';
+  let i = 0;
+  heroTimer = setInterval(() => {
+    box.textContent = text.slice(0, ++i);
+    if (i >= text.length) {
+      clearInterval(heroTimer);
+      box.classList.add('done');
+    }
+  }, 18);
+}
+
+function initHero() {
+  typeHero(heroSpecimen());
+
+  $('hero-regen').addEventListener('click', () => typeHero(heroSpecimen()));
+
+  // 把剛剛示範的那句話，餵給拆解模式——網站當場拆自己
+  $('hero-unpack').addEventListener('click', () => {
+    clearInterval(heroTimer);
+    $('hero-specimen').textContent = heroText;
+    $('hero-specimen').classList.add('done');
+    setMode('checklist');
+    $('checklist-input').value = heroText;
+    $('checklist-warn').hidden = true;
+    runAction({ type: 'checklist', input: heroText });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
 
@@ -588,7 +639,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('[data-lang-toggle]')
     .addEventListener('click', () => applyLang(currentLang === 'zh-TW' ? 'en' : 'zh-TW'));
 
-  document.querySelectorAll('.mode-btn').forEach(b =>
+  initHero();
+
+  document.querySelectorAll('.mode').forEach(b =>
     b.addEventListener('click', () => setMode(b.dataset.mode)));
 
   $('btn-quick').addEventListener('click', () => runAction({ type: 'quick' }));
