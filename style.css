@@ -259,6 +259,20 @@ textarea { resize: vertical; min-height: 6rem; line-height: 1.8; font-family: va
   padding-bottom: var(--s2); border-bottom: 1px solid var(--ink);
 }
 
+/* 修辭標記：抽象詞用螢光塗、連接詞用螢光底線——同一支筆，兩種筆觸 */
+mark.rh-abs { background: var(--marker-wash); color: inherit; padding: 0 0.05em; }
+mark.rh-con {
+  background: none; color: inherit;
+  text-decoration: underline; text-decoration-color: var(--marker);
+  text-decoration-thickness: 0.18em; text-underline-offset: 0.28em;
+}
+.chk-rhet {
+  display: grid; grid-template-columns: 4.5rem 1fr; gap: var(--s3); align-items: baseline;
+  padding: var(--s2) 0; border-bottom: 1px solid var(--rule);
+}
+.chk-rhet mark { font-size: var(--t-fine); font-weight: 700; justify-self: start; }
+.chk-rhet-words { overflow-wrap: anywhere; }
+
 /* 具體元素盤點：左欄標籤、右欄標記，整齊成表 */
 .chk-scan { margin-top: var(--s3); }
 .chk-item {
