@@ -202,7 +202,10 @@ input[type="text"], textarea {
 input[type="text"]:focus, textarea:focus { border-color: var(--ink); }
 textarea { resize: vertical; min-height: 6rem; line-height: 1.8; font-family: var(--sans); }
 
-#reply-panel .field, #checklist-panel .field { margin-bottom: var(--s4); }
+#reply-panel .field, #checklist-panel .field, .topic-field { margin-bottom: var(--s4); }
+.topic-field label { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); }
+.topic-field .optional { font-weight: 400; letter-spacing: 0; color: var(--ink-2); }
+.topic-field input { font-size: var(--t-body); }
 .warn { font-size: var(--t-small); color: var(--ink); background: var(--marker-wash); padding: var(--s2) var(--s3); margin-bottom: var(--s4); }
 .fine { font-size: var(--t-fine); color: var(--ink-2); line-height: 1.7; margin-top: var(--s4); max-width: var(--measure); }
 

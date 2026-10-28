@@ -74,6 +74,7 @@ function labelText(l) {
   if (typeof l === 'string') return l; // 2.0 舊版歷史紀錄存的是字串，相容處理
   if (l.type === 'reply') return t('out.reply');
   if (l.type === 'checklist') return t('chk.label');
+  if (l.topic) return `${styleName(l.style)}${t('out.sep')}${l.topic}`;
   if (l.type === 'quick') return `${styleName(l.style)}${t('out.sep')}${t('out.quick')}`;
   return styleName(l.style);
 }
@@ -116,7 +117,10 @@ function drawVals(fieldVals) {
 /* 依廢話濃度組裝：開場白 + 本文 + 填充句 + 收尾金句 */
 function compose(body, vals, density, opts = {}) {
   const parts = [];
-  if (!opts.noOpener && density >= 1 && Math.random() < (density === 2 ? 0.9 : 0.5)) {
+  if (opts.topic && !opts.noOpener) {
+    // 使用者給了主題：一律用主題開場白，不受濃度與機率影響，保證題目出現在第一句
+    parts.push(fill(pick(CORPUS.topicOpeners), vals));
+  } else if (!opts.noOpener && density >= 1 && Math.random() < (density === 2 ? 0.9 : 0.5)) {
     parts.push(fill(pick(CORPUS.openers), vals));
   }
   parts.push(body);
@@ -159,14 +163,22 @@ function getFieldVals() {
   };
 }
 
-function makePost(useFields) {
+function makePost(useFields, opts = {}) {
   const style = CORPUS.styles[currentStyle];
   const density = +$('density').value;
-  const fieldVals = useFields ? getFieldVals() : null;
+  // 主題欄是首要輸入，一鍵貼文也吃它；首屏示範刻意忽略，維持隨機
+  const topic = opts.ignoreTopic ? '' : $('topic').value.trim();
+  const fieldVals = useFields ? getFieldVals() : (topic ? { topic } : null);
+  const hasTopic = !!(fieldVals && fieldVals.topic);
   const vals = drawVals(fieldVals);
 
   if (currentStyle === 'thread') {
-    const set = pick(style.threadSets);
+    let sets = style.threadSets;
+    if (hasTopic) {
+      const withTopic = sets.filter(set => set.some(p => p.text.includes('{topic}')));
+      if (withTopic.length) sets = withTopic;
+    }
+    const set = pick(sets);
     const posts = set.map(p => ({
       text: fill(p.text, vals),
       tags: p.tags.map(t => fill(t, vals))
@@ -176,7 +188,13 @@ function makePost(useFields) {
 
   // 使用者有填欄位時，優先抽「用到最多已填欄位」的模板，填的值才會進輸出
   let pool = style.templates;
-  if (fieldVals) {
+  if (!useFields && hasTopic) {
+    // 一鍵貼文有主題時只做軟性偏好：含 {topic} 的模板很少（順起來版只有 2/18），
+    // 硬收窄會一直重複同幾則。題目出現與否改由 compose() 的主題開場白保證；
+    // 沒有開場白的風格（質詢版）才全押在含 {topic} 的模板上。
+    const withTopic = pool.filter(tpl => tpl.includes('{topic}'));
+    if (withTopic.length && (style.noOpener || Math.random() < 0.5)) pool = withTopic;
+  } else if (fieldVals) {
     const filledKeys = Object.entries(fieldVals).filter(([, v]) => v).map(([k]) => k);
     if (filledKeys.length) {
       const scored = pool.map(t => ({ t, s: filledKeys.filter(k => t.includes('{' + k + '}')).length }));
@@ -186,7 +204,7 @@ function makePost(useFields) {
   }
 
   const body = fill(pick(pool), vals);
-  let text = compose(body, vals, density, { noOpener: style.noOpener, closers: style.closers });
+  let text = compose(body, vals, density, { noOpener: style.noOpener, closers: style.closers, topic: hasTopic });
   // 一鍵貼文目標 100–300 字（不含空白）；低濃度=點到為止，不硬補
   if (!useFields && density >= 1) {
     let guard = 0;
@@ -493,10 +511,11 @@ function fallbackCopy(text, done) {
 /* ---------- 事件綁定 ---------- */
 function runAction(action) {
   lastAction = action;
+  const topic = $('topic').value.trim();
   if (action.type === 'quick') {
-    render(generateUnique('quick:' + currentStyle, () => makePost(false)), { type: 'quick', style: currentStyle });
+    render(generateUnique('quick:' + currentStyle, () => makePost(false)), { type: 'quick', style: currentStyle, topic });
   } else if (action.type === 'fields') {
-    render(generateUnique('fields:' + currentStyle, () => makePost(true)), { type: 'fields', style: currentStyle });
+    render(generateUnique('fields:' + currentStyle, () => makePost(true)), { type: 'fields', style: currentStyle, topic });
   } else if (action.type === 'reply') {
     render(generateUnique('reply', () => makeReply(action.input)), { type: 'reply' });
   } else if (action.type === 'checklist') {
@@ -580,7 +599,7 @@ function heroSpecimen() {
   // 首屏要在折線以上講完，太長的模板重抽；抽不到就取最短的那篇
   let best = null;
   for (let i = 0; i < 12; i++) {
-    const text = makePost(false).text;
+    const text = makePost(false, { ignoreTopic: true }).text;
     const len = text.replace(/\s/g, '').length;
     if (!best || len < best.len) best = { text, len };
     if (len <= 85) break;
