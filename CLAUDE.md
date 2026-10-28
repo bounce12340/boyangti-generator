@@ -37,6 +37,7 @@ drawTags()   → hashtags
 - **`generateUnique(key, makeFn)`** retries up to 15 times so consecutive clicks don't repeat; `recentOutputs` is keyed by action + style.
 - **Quick-post length guard**: at density ≥ 1 a non-field post is padded with extra fillers until it reaches 100 non-whitespace chars (max 4 extra).
 - **Field-aware template selection**: when the advanced fields are filled, the template pool is narrowed to those referencing the *most* filled placeholders, so the user's words actually appear in the output.
+- **Topic input** (`#topic`, above the one-click button) feeds the quick post too. `{topic}` coverage is thin (順起來版 2/18, 溫情版 3/20, openers/fillers/closers 0), so a hard narrowing like the advanced fields would leave a style cycling two templates. Instead: `compose()` always opens with a `CORPUS.topicOpeners` line when a topic is set, which guarantees it appears; the template pool is only *biased* 50% toward `{topic}` templates; `noOpener` styles (質詢版) go all-in on `{topic}` templates; thread mode picks only sets containing `{topic}`. `heroSpecimen()` passes `ignoreTopic` so the hero stays random. The output label and history show the topic.
 
 ### Reply mode
 
@@ -67,7 +68,8 @@ The media-literacy half of the site: paste a slogan, get the accountability ques
 
 One rule governs it instead: **generate questions and report what is literally in the text; never generate answers.** Any "what this really means" inference would just be a second layer of waffle, which is the thing the site exists to mock. Keep it that way.
 
-Three pieces, all mechanical:
+Four pieces, all mechanical:
+- **`rhetoric`** — what the sentence *uses*, complementing `detectors` (what it *lacks*). Connectives come from `style-guide.md` §2; abstract terms are a short list plus `CORPUS.words.a`/`.c` and the ladder's impact markers, minus `abstractExclude` (everyday words like 時間/空間 that concrete policies use too). Matches are longest-first and non-overlapping; the quote is rebuilt from text nodes and `<mark>` elements, never `innerHTML`. A mark means a word was used, not that the sentence is empty — the UI says so.
 - **`detectors`** — regexes for concrete elements (numbers, money, dates, agencies, legal instruments, metrics). Pure string matching, no semantics. A group whose detector fires is marked `answered` and dimmed, because that facet is no longer being dodged.
 - **`ladder`** — the five rungs of a policy logic model (投入/活動/產出/成果/影響) matched by keyword. The impact rung additionally folds in `CORPUS.words.c` and `.a`: the same vocabulary that drives the generator doubles as the detector for what it parodies. Rendered even when nothing matches — "landed on no rung at all" is the most informative result, so don't hide it.
 - **`groups`** — seven question sets (who / cost / when / metric / authority / trade-off / risk), each with a `{keyword}` slot filled from `extractKeywords()`, falling back to a generic phrase when nothing extracts.

@@ -265,6 +265,26 @@ function ladderHits(text) {
   });
 }
 
+/* 修辭標記：找出抽象詞與連接詞的位置。長詞優先、互不重疊 */
+function rhetoricHits(text) {
+  const R = CHECKLIST.rhetoric;
+  const impact = (CHECKLIST.ladder.find(r => r.key === 'impact') || { markers: [] }).markers;
+  const abstractWords = [...new Set(R.abstract.concat(CORPUS.words.a, CORPUS.words.c, impact))]
+    .filter(w => w.length >= 2 && !(R.abstractExclude || []).includes(w));
+  const cands = [];
+  for (const [kind, words] of [['abs', abstractWords], ['con', R.connectors]]) {
+    for (const w of words) {
+      for (let i = text.indexOf(w); i !== -1; i = text.indexOf(w, i + 1)) cands.push({ start: i, end: i + w.length, kind, w });
+    }
+  }
+  cands.sort((x, y) => x.start - y.start || (y.end - y.start) - (x.end - x.start));
+  const spans = [];
+  let cursor = 0;
+  for (const c of cands) if (c.start >= cursor) { spans.push(c); cursor = c.end; }
+  const uniq = kind => [...new Set(spans.filter(s => s.kind === kind).map(s => s.w))];
+  return { spans, abstract: uniq('abs'), connectors: uniq('con') };
+}
+
 function detectConcrete(text) {
   return CHECKLIST.detectors.map(d => ({ d, hit: d.re.test(text) }));
 }
@@ -291,13 +311,17 @@ function makeChecklist(input) {
     };
   });
 
-  return { checklist: true, input: text, keywords: kws, ladder: ladderHits(text), detected, missing, groups,
-           text: checklistText(text, groups) };
+  const rhetoric = rhetoricHits(text);
+  return { checklist: true, input: text, keywords: kws, ladder: ladderHits(text), detected, missing, groups, rhetoric,
+           text: checklistText(text, groups, rhetoric) };
 }
 
 /* 純文字版，給複製與分享用 */
-function checklistText(input, groups) {
+function checklistText(input, groups, rhetoric) {
   const lines = [t('chk.copyHead'), '「' + input + '」', ''];
+  if (rhetoric.abstract.length) lines.push(t('chk.rhetAbs') + '：' + rhetoric.abstract.join('、'));
+  if (rhetoric.connectors.length) lines.push(t('chk.rhetCon') + '：' + rhetoric.connectors.join('、'));
+  if (rhetoric.abstract.length || rhetoric.connectors.length) lines.push('');
   groups.forEach(g => {
     lines.push(`${g.icon} ${g.title}`);
     g.questions.forEach(q => lines.push('  - ' + q));
@@ -356,9 +380,31 @@ function checklistCard(result) {
     return sec;
   };
 
-  // 被拆解的原句
-  const quote = el('blockquote', 'chk-quote', result.input, wrap);
+  // 被拆解的原句，標上修辭位置。逐段用 textContent 組，不碰 innerHTML（這是使用者輸入）
+  const quote = el('blockquote', 'chk-quote', undefined, wrap);
   quote.setAttribute('lang', 'zh-TW');
+  let pos = 0;
+  for (const sp of result.rhetoric.spans) {
+    if (sp.start > pos) quote.appendChild(document.createTextNode(result.input.slice(pos, sp.start)));
+    el('mark', 'rh-' + sp.kind, result.input.slice(sp.start, sp.end), quote);
+    pos = sp.end;
+  }
+  if (pos < result.input.length) quote.appendChild(document.createTextNode(result.input.slice(pos)));
+
+  // 修辭標記：用了什麼（下一節的盤點是缺了什麼）
+  const rh = result.rhetoric;
+  const rhSec = section(t('chk.rhetHead', { a: rh.abstract.length, c: rh.connectors.length }));
+  if (rh.abstract.length || rh.connectors.length) {
+    for (const [kind, words, key] of [['abs', rh.abstract, 'chk.rhetAbs'], ['con', rh.connectors, 'chk.rhetCon']]) {
+      if (!words.length) continue;
+      const row = el('div', 'chk-rhet', undefined, rhSec);
+      el('mark', 'rh-' + kind, t(key), row);
+      el('span', 'chk-rhet-words', words.join('、'), row);
+    }
+  } else {
+    el('p', 'chk-note', t('chk.rhetNone'), rhSec);
+  }
+  el('p', 'chk-note', t('chk.rhetNote'), rhSec);
 
   // 具體元素盤點：只陳述文本裡找不找得到，不做評價
   const scan = section(t('chk.scanHead', { n: result.missing, total: result.detected.length }));
