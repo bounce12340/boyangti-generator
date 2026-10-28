@@ -151,7 +151,7 @@ drawTags()   hashtag
 
 ## License
 
-MIT
+MIT，全文見 [`LICENSE`](LICENSE)。
 
 ---
 

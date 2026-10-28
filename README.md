@@ -187,7 +187,7 @@ Chinese (zh-TW) regardless of interface language.
 
 ## License
 
-MIT
+MIT — see [`LICENSE`](LICENSE).
 
 ---
 
