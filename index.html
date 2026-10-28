@@ -63,6 +63,10 @@
     </div>
 
     <div id="post-panel">
+      <div class="field full topic-field">
+        <label for="topic"><span data-i18n="field.topic">今天想談什麼？</span><span class="optional" data-i18n="topic.hint">選填，留白就隨機</span></label>
+        <input type="text" id="topic" maxlength="20" autocomplete="off" data-i18n-ph="ph.topic" placeholder="例如：房租、捷運好擠、排隊買早餐">
+      </div>
       <button class="btn btn-mark btn-wide" id="btn-quick" data-i18n="btn.quick">一鍵產生貼文</button>
       <details class="advanced">
         <summary data-i18n="adv.summary">進階：自己填關鍵詞</summary>
@@ -86,10 +90,6 @@
           <div class="field full">
             <label for="buzzword" data-i18n="field.buzzword">學術關鍵詞（進階）</label>
             <input type="text" id="buzzword" data-i18n-ph="ph.buzzword" placeholder="第三空間感知、韌性對齊、生態系治理…">
-          </div>
-          <div class="field full">
-            <label for="topic" data-i18n="field.topic">政策主題</label>
-            <input type="text" id="topic" data-i18n-ph="ph.topic" placeholder="交通、治安、文化創意…">
           </div>
         </div>
         <div class="btn-row">
