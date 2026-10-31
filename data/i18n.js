@@ -234,6 +234,7 @@ const I18N = {
     styles: {
       basic: 'Basic',
       slogan: 'Flow (順起來)',
+      debate: 'Debate (辯論)',
       academic: 'Academic smokescreen',
       ironic: 'Ironic worship',
       interpellation: 'Interpellation',
