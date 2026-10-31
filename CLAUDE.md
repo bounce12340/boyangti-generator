@@ -41,7 +41,7 @@ drawTags()   → hashtags
 
 ### Reply mode
 
-`CORPUS.replies` carries two generations of templates: the original deflections, and a block derived from `style-guide.md` §10 (late-campaign response patterns). In the §10 block every piece of the original *accusation* is replaced by `{keyword}`, so the template keeps the shape of the response and none of the content being responded to — keep new reply templates to that rule.
+`CORPUS.replies` carries three generations of templates: the original deflections, a block derived from `style-guide.md` §10 (late-campaign response patterns), and one from §11.2 (debate cross-examination). In those blocks every piece of the original *accusation* is replaced by `{keyword}`, so the template keeps the shape of the response and none of the content being responded to — keep new reply templates to that rule.
 
 `extractKeywords()` is a hand-rolled CJK tokenizer — it splits Chinese runs on a stop-character class, keeps segments ≥ 2 chars (capped at 6), sorts longest-first, drops fragments contained in longer keeps, then samples up to 3. The results bind `{keyword}` / `{keyword2}` into `CORPUS.replies` templates. Reply mode always passes `noOpener: true`.
 
@@ -60,7 +60,9 @@ Each entry in `CORPUS.styles` is `{ name, templates }` plus three optional flags
 - `closers` — a style-private closer pool that replaces `CORPUS.closers` for that style (used by 順起來版 so the campaign slogan lands in every post). Reply mode always uses the global pool.
 - `threadSets` **instead of** `templates` — an array of 5-post sets, each post `{ text, tags }`. This is a separate branch in `makePost()` and returns `{ thread: [...] }`, which changes rendering, `shareText()`, and the share intent.
 
-A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it.
+A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it, and to `I18N.en.styles` or English mode shows the Chinese name.
+
+The 辯論版 (`debate`) style and the §11.2 reply block come from a televised debate, where most of what was said is the two candidates attacking each other. Only the speaker's own sentence *shapes* made it in; every real person's name and place name was stripped (see `style-guide.md` §11.3). Keep it that way when adding material from future debates.
 
 ### Unpack mode (`data/checklist.js`)
 
@@ -120,7 +122,7 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 `data/style-guide.md` is the sourced analysis behind the corpus, including a full URL list graded 官方 / 一手 / 二手 / 論壇 and an honest list of unverified items. Its constraints govern `data/corpus.js`:
 
 - Imitate **speech style only**. No factual allegations, personal attacks, or private-life content about any real person.
-- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6 and §10.4 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
+- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6, §10.4 and §11.4 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
 - Every new template keeps a trailing provenance comment — `〔原站〕`, `〔一手〕`, `〔二手〕`, or `〔論壇〕` — matching the existing entries.
 - The parody disclaimer in the `index.html` footer and in the README must stay.
 

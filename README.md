@@ -63,12 +63,13 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | 🌐 **EN / 中 interface** | Starts in Traditional Chinese; the toggle switches to English and remembers your choice. **Generated output stays in Traditional Chinese either way** — the corpus is the joke and it doesn't survive translation. |
 | 🌙 **Themes · 📱 Responsive** | Light by default, dark one click away, choice remembered. Verified down to 375px. |
 
-### The eight styles
+### The nine styles
 
 | Style | What it does |
 |---|---|
 | **基礎版** — Basic | The standard escalating-causal-ladder sentence. |
 | **順起來版** — Flow | 2026 campaign vocabulary: everything's stuck → the junctions are broken → reconnect them. Includes the HEART platform and the "warm orange" branding. |
+| **辯論版** — Debate | Lines from the first televised mayoral debate (Oct 31, 2026): "my citizen-ism is citizens first, then a mayor", "one Taipei, two worlds", and the cross-examination dodges — "did your answer actually match my question?", "do I look like…?", "we could just add each other on LINE later". Real names stripped. |
 | **學術煙霧彈版** — Academic smokescreen | Jargon bombardment ("third-space perceptual resilience alignment"). Instant gravitas. |
 | **反串崇拜版** — Ironic worship | Sustained parody in the voice of an over-devoted follower. The most lethal register. |
 | **質詢版** — Interpellation | Chained rhetorical questions at an official. "Minister, is this right?" |
@@ -76,8 +77,8 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | **溫情喊話版** — Warmth | Soft, late-night-murmur persuasion aimed at young people and citizens. |
 | **Threads 串文版** — Thread | Emits a full 5-post thread with hashtags, drawn from 7 skeletons. |
 
-Corpus size: **173 templates** across 8 styles, **297 vocabulary entries** across 8 word pools,
-plus 29 reply templates, 12 topic openers, 39 filler lines, 35 closers, and 52 hashtags.
+Corpus size: **187 templates** across 9 styles, **297 vocabulary entries** across 8 word pools,
+plus 35 reply templates, 12 topic openers, 39 filler lines, 35 closers, and 56 hashtags.
 
 ---
 
