@@ -25,7 +25,7 @@ let lastResult = null;      // 複製／分享／存紀錄用
 let lastLabel = null;       // 切語言時重畫輸出標題用
 const recentOutputs = {};   // 各 style+type 近期輸出，防連按重複
 
-const STYLE_ORDER = ['basic', 'slogan', 'academic', 'ironic', 'interpellation', 'crisis', 'warmth', 'thread'];
+const STYLE_ORDER = ['basic', 'slogan', 'debate', 'academic', 'ironic', 'interpellation', 'crisis', 'warmth', 'thread'];
 
 /* ---------- 介面語言 ----------
  * 只翻譯介面外殼；產生出來的內容一律是繁體中文（笑點建立在中文上）。 */
