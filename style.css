@@ -90,6 +90,11 @@ main { max-width: 46rem; margin-inline: auto; padding: 0 var(--s5) var(--s8); }
   font-size: var(--t-body); font-weight: 700; letter-spacing: 0.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.brand-ver {
+  flex-shrink: 0;
+  font-size: var(--t-fine); font-weight: 500; color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
 .bar-actions { display: flex; gap: var(--s2); flex-shrink: 0; }
 .switch {
   min-width: 2.5rem; height: 2rem; padding: 0 var(--s3);
@@ -343,6 +348,7 @@ mark.rh-con {
   border-top: 1px solid var(--rule);
   font-size: var(--t-fine); color: var(--ink-2); line-height: 1.8;
 }
+.foot-ver { font-weight: 700; color: var(--ink); margin-bottom: var(--s2); }
 .disclaimer { margin-top: var(--s3); }
 
 /* ---------- 模式氣質分化 ----------

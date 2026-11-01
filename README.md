@@ -6,7 +6,7 @@
 > piece of social media writing that sounds profound and says nothing. Or paste someone's comment
 > and get a reply that responds thoroughly without answering anything.
 
-**[Live demo →](https://bounce12340.github.io/boyangti-generator/)**
+**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.0**
 
 ---
 
