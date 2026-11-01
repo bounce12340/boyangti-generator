@@ -97,7 +97,7 @@ Anything rendered from JS rather than markup (style tab names, output labels, th
 
 Language choice persists in `localStorage` under `byt_lang_v1`. With nothing stored the interface starts in `zh-TW` regardless of browser locale — English is opt-in via the toggle.
 
-`render()` stores a `{type, style}` label object rather than a formatted string, so the output header can be re-rendered on a language switch. History entries from 2.0 stored a plain string; `labelText()` passes those through unchanged.
+`render()` stores a `{type, style}` label object rather than a formatted string, so the output header can be re-rendered on a language switch. History entries from early builds stored a plain string; `labelText()` passes those through unchanged.
 
 ### Visual design
 
@@ -109,6 +109,10 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 - **`data-mode` lives on `<html>`** (set by `setMode()`) so CSS can give the two halves different temperaments: generator output sits on a raised paper block, unpack output is a ruled form with no card and no radius.
 - **One motion moment**: the hero types out a specimen on load. Everything else is instant. `prefers-reduced-motion` skips it and kills the caret.
 - Unpack mode is a *form*, not cards: hairline rules, a fixed-width flag column for ✓/✗, numbered question groups. The ladder draws filled rungs as solid marker bars and empty rungs as hairlines, so "landed nowhere" is visible at a glance.
+
+### Version label
+
+The site is **伯洋體產生器 1.0**. The number is written out by hand in four places, so a version bump touches all of them: the `.brand-ver` span in the `index.html` header, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
 
 ### Rendering, storage, theming
 

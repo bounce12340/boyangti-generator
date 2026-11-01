@@ -71,7 +71,7 @@ function applyLang(lang) {
 }
 
 function labelText(l) {
-  if (typeof l === 'string') return l; // 2.0 舊版歷史紀錄存的是字串，相容處理
+  if (typeof l === 'string') return l; // 早期版本的歷史紀錄存的是字串，相容處理
   if (l.type === 'reply') return t('out.reply');
   if (l.type === 'checklist') return t('chk.label');
   if (l.topic) return `${styleName(l.style)}${t('out.sep')}${l.topic}`;

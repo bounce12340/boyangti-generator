@@ -4,7 +4,7 @@
 
 > 一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇「回應了但等於沒回應」的廢話體回覆。
 
-**[線上體驗 →](https://bounce12340.github.io/boyangti-generator/)**
+**[線上體驗 →](https://bounce12340.github.io/boyangti-generator/)** · 目前版本：**伯洋體產生器 1.0**
 
 ---
 

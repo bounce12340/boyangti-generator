@@ -24,9 +24,9 @@ const I18N = {
     'logo.sub': '政治語言生態系感知工具',
     'a11y.theme': '切換主題',
     'a11y.lang': '切換語言',
+    'a11y.version': '版本 1.0',
     'a11y.density': '廢話濃度',
 
-    'hero.badge': '伯洋體 2.0',
     'hero.title1': '伯洋體',
     'hero.title2': '產生器',
     'hero.lede': '一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇回應了但等於沒回應的廢話體回覆。',
@@ -117,6 +117,7 @@ const I18N = {
 
     'note.zhOnly': '',
 
+    'footer.version': '伯洋體產生器 1.0',
     'footer.mark': '伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已',
     'footer.disclaimer': '本站為諷刺／娛樂用途之戲仿（parody）創作，所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。',
 
@@ -135,9 +136,9 @@ const I18N = {
     'logo.sub': 'Political language ecosystem alignment tool',
     'a11y.theme': 'Toggle theme',
     'a11y.lang': 'Switch language',
+    'a11y.version': 'Version 1.0',
     'a11y.density': 'Waffle density',
 
-    'hero.badge': 'Boyangti 2.0',
     'hero.title1': 'Boyangti',
     'hero.title2': 'Generator',
     'hero.lede': 'One click gives you a complete post that sounds profound and says nothing. Or paste someone’s comment and get a reply that responds thoroughly without answering anything.',
@@ -228,6 +229,7 @@ const I18N = {
 
     'note.zhOnly': 'Interface is in English; generated output stays in Traditional Chinese — the joke only works in the original.',
 
+    'footer.version': 'Boyangti Generator 1.0',
     'footer.mark': 'Boyangti perceptual ecosystem alignment complete · it really is that simple',
     'footer.disclaimer': 'This site is a parody created for satire and media-literacy purposes. All output is assembled at random from sentence templates. It is not the speech of Shen Bo-yang and does not represent his positions.',
 
