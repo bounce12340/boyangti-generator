@@ -15,7 +15,7 @@ There is no build step, package manager, test suite, or linter — the site is p
 python3 -m http.server 8000
 ```
 
-Verification is manual: open the page, exercise each style tab × each density setting × all three modes, and check dark/light and 375px width.
+Verification is manual: open the page, exercise each style tab × each density setting × all three modes, plus each occasion × each length in post mode, and check dark/light and 375px width.
 
 ## Architecture
 
@@ -33,11 +33,20 @@ compose()    → opener + body + fillers (+ transitions) + closer, sized by dens
 drawTags()   → hashtags
 ```
 
-- **Density** (slider `0|1|2`) is the main knob: it controls opener probability, filler count (`0 / 1 / 3–4`), whether transition phrases are prepended to fillers, and trailing emoji.
+- **Density** (slider `0|1|2`) controls how much waffle goes in: opener probability, filler count (`0 / 1 / 3–4`), whether transition phrases are prepended to fillers, and trailing emoji.
+- **Length** (`currentLength`: `short|medium|long`, chips under 場合) controls the *shape*, and **occasion** (`currentOccasion`: `general` or a `CORPUS.occasions` key) controls the *structure*. `makePost()` routes in this order: an occasion other than `general` → `assemble()` on that occasion's `short`/`medium`/`long` skeleton; else `threadSets` → `makeThread()` (3/5/7 posts); else `day` → `makeDay()` (2 / density-based 3–5 / 7 scenes); else `short` → `makeShort()` (one template of ≤ `SHORT_MAX` rough chars, no opener/fillers/closer); else `long` → `assemble()` on `CORPUS.longform`; else the original medium path above. The pipeline above is the medium path; `heroSpecimen()` pins `length: 'medium', occasion: 'general'`.
 - **`generateUnique(key, makeFn)`** retries up to 15 times so consecutive clicks don't repeat; `recentOutputs` is keyed by action + style.
 - **Quick-post length guard**: at density ≥ 1 a non-field post is padded with extra fillers until it reaches 100 non-whitespace chars (max 4 extra).
 - **Field-aware template selection**: when the advanced fields are filled, the template pool is narrowed to those referencing the *most* filled placeholders, so the user's words actually appear in the output.
 - **Topic input** (`#topic`, above the one-click button) feeds the quick post too. `{topic}` coverage is thin (順起來版 2/18, 溫情版 3/20, openers/fillers/closers 0), so a hard narrowing like the advanced fields would leave a style cycling two templates. Instead: `compose()` always opens with a `CORPUS.topicOpeners` line when a topic is set, which guarantees it appears; the template pool is only *biased* 50% toward `{topic}` templates; `noOpener` styles (質詢版) go all-in on `{topic}` templates; thread mode picks only sets containing `{topic}`. `heroSpecimen()` passes `ignoreTopic` so the hero stays random. The output label and history show the topic.
+
+### Skeletons: occasions and long-form (`style-guide.md` §13)
+
+A skeleton is an array of section names; `assemble(skeleton, parts, ctx)` walks it and joins the results with blank lines. Reserved names: `body` (a template from the current style via `bodyPool()` — `threadSets`/`day` styles fall back to 基礎版's templates), `topic` (a `topicOpeners` line, only when a topic is set), `opener` (skipped for `noOpener` styles), `filler`, `fillers` (density-many fillers: 0/1/2), `closer` (style-private closers if any). `h1`–`h4` are headings and are glued to the next section with a single newline. Any other name is looked up in the occasion's `parts`, then in `CORPUS.longform.parts` — so occasions can borrow `problem`, `why`, `how` without duplicating them. A misspelt section name is emitted as a literal `{name}` on purpose, so the placeholder-leak check catches it.
+
+Within one post, no section pool repeats a line, and `body` never repeats a template. If a topic is set and no section happened to contain it, a topic opener is prepended. The apology occasion's `sorry` part (his real, direct apology) is used **only** in `short` — the joke is that the longer the statement, the less it apologizes; keep it that way. Long single posts can exceed Threads' 500-char limit; `render()` shows `#share-note` when `shareText()` is over `THREADS_LIMIT` (threads are exempt, each post is counted separately).
+
+Occasion names: zh from `CORPUS.occasions[key].name`, en from `I18N.en.occasions`; `general` comes from the `occasion.general` i18n key. Adding an occasion means adding it to `CORPUS.occasions`, `OCCASION_ORDER` in `app.js`, and `I18N.en.occasions`. The output label and history carry `{occasion, length}` and show them only when they are not the defaults.
 
 ### Reply mode
 
@@ -47,7 +56,9 @@ drawTags()   → hashtags
 
 ### Placeholder contract
 
-`{subject} {a} {a2} {b} {b2} {c} {c2} {buzzword} {buzzword2} {jargon} {jargon2} {jargon3} {topic} {stuck} {stuck2} {keyword} {keyword2}`
+`{subject} {a} {a2} {b} {b2} {c} {c2} {buzzword} {buzzword2} {jargon} {jargon2} {jargon3} {topic} {stuck} {stuck2} {keyword} {keyword2} {holiday}`
+
+`{holiday}` (from `words.holidays`) is meant for the holiday-greeting occasion only.
 
 `fill()` leaves unknown tokens verbatim, so a typo'd placeholder ships to the user as literal `{foo}`. `drawVals()` uses `pickN` for the paired/tripled slots — the `a`/`b`/`c`/`buzzwords`/`stuck` pools need ≥ 2 entries and `jargon` needs ≥ 3, or `undefined` leaks into output.
 
@@ -59,7 +70,7 @@ Each entry in `CORPUS.styles` is `{ name, templates }` plus optional flags:
 - `noOpener: true` — skip the post-style opener (used by 質詢版, which starts mid-interpellation).
 - `closers` — a style-private closer pool that replaces `CORPUS.closers` for that style (used by 順起來版 so the campaign slogan lands in every post). Reply mode always uses the global pool.
 - `threadSets` **instead of** `templates` — an array of 5-post sets, each post `{ text, tags }`. This is a separate branch in `makePost()` and returns `{ thread: [...] }`, which changes rendering, `shareText()`, and the share intent.
-- `day` **instead of** `templates` — used by 生活應用版 (`daily`, from `style-guide.md` §12). `{ intros, scenes, topicScenes, outros }`; each scene is `{ slot, lines }` and the `scenes` array is in time-of-day order. `makeDay()` picks `DAY_SCENES[density]` scenes (3/4/5), keeps their order, swaps one for a `topicScenes` entry when a topic is set, and adds an outro at density 2 (50% at 1). Every line is `{ m, t }`: `t` is the text, `m` names the move it uses (`accompany`, `binary`, `lookalike`…). One post never repeats a move except `plain` — without that rule a day reads 「最重要的是陪伴」 five times. Keep at least one `plain` outro, and give each scene at least one move no earlier scene can use, so a fresh line always exists. At density 2 the output tops out under Threads' 500-char limit; check that when adding long lines. Advanced-mode fields other than `{topic}` are ignored by this style.
+- `day` **instead of** `templates` — used by 生活應用版 (`daily`, from `style-guide.md` §12). `{ intros, scenes, topicScenes, outros }`; each scene is `{ slot, lines }` and the `scenes` array is in time-of-day order. `makeDay()` picks `DAY_SHORT` (2) scenes for short, `DAY_SCENES[density]` (3/4/5) for medium and `DAY_LONG` (7) for long, keeps their order, swaps one for a `topicScenes` entry when a topic is set, and adds an outro always at long, at density 2 (50% at 1) for medium, never for short. Every line is `{ m, t }`: `t` is the text, `m` names the move it uses (`accompany`, `binary`, `lookalike`…). One post never repeats a move except `plain` — without that rule a day reads 「最重要的是陪伴」 five times. Keep at least one `plain` outro, and give each scene at least one move no earlier scene can use, so a fresh line always exists. At medium length the output tops out under Threads' 500-char limit; check that when adding long lines. Advanced-mode fields other than `{topic}` are ignored by this style.
 
 A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it, and to `I18N.en.styles` or English mode shows the Chinese name.
 
@@ -113,7 +124,7 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 
 ### Version label
 
-The site is **伯洋體產生器 1.1** (1.0 → 1.1 added 生活應用版). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
+The site is **伯洋體產生器 1.2** (1.1 added 生活應用版; 1.2 added length and occasions). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
 
 ### Rendering, storage, theming
 
@@ -127,7 +138,7 @@ The site is **伯洋體產生器 1.1** (1.0 → 1.1 added 生活應用版). The 
 `data/style-guide.md` is the sourced analysis behind the corpus, including a full URL list graded 官方 / 一手 / 二手 / 論壇 and an honest list of unverified items. Its constraints govern `data/corpus.js`:
 
 - Imitate **speech style only**. No factual allegations, personal attacks, or private-life content about any real person.
-- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6, §10.4, §11.4 and §12.4 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
+- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6, §10.4, §11.4, §12.4 and §13.5 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
 - Every new template keeps a trailing provenance comment — `〔原站〕`, `〔一手〕`, `〔二手〕`, or `〔論壇〕` — matching the existing entries.
 - The parody disclaimer in the `index.html` footer and in the README must stay.
 

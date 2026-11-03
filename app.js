@@ -18,6 +18,8 @@ function pickN(arr, n) {
 
 /* ---------- 狀態 ---------- */
 let currentStyle = 'basic';
+let currentOccasion = 'general'; // 'general' 或 CORPUS.occasions 的 key
+let currentLength = 'medium';    // 'short' | 'medium' | 'long'
 let currentMode = 'post';   // 'post' | 'reply'
 let currentLang = 'zh-TW';  // 'zh-TW' | 'en'（只影響介面外殼，產出恆為中文）
 let lastAction = null;      // 「換一篇」重骰用
@@ -26,6 +28,9 @@ let lastLabel = null;       // 切語言時重畫輸出標題用
 const recentOutputs = {};   // 各 style+type 近期輸出，防連按重複
 
 const STYLE_ORDER = ['basic', 'slogan', 'debate', 'academic', 'ironic', 'daily', 'interpellation', 'crisis', 'warmth', 'thread'];
+const OCCASION_ORDER = ['general', 'policy', 'rebuttal', 'apology', 'holiday', 'rally'];
+const LENGTHS = ['short', 'medium', 'long'];
+const THREADS_LIMIT = 500; // Threads 單則字數上限，長文超過時提示
 
 /* ---------- 介面語言 ----------
  * 只翻譯介面外殼；產生出來的內容一律是繁體中文（笑點建立在中文上）。 */
@@ -42,6 +47,13 @@ function t(key, vars) {
 function styleName(key) {
   const map = (I18N[currentLang] || {}).styles;
   return (map && map[key]) || CORPUS.styles[key].name;
+}
+
+// 場合名稱：中文取 CORPUS.occasions[key].name，英文取 I18N.en.occasions；「一般貼文」不是場合，走語言包
+function occasionName(key) {
+  if (key === 'general') return t('occasion.general');
+  const map = (I18N[currentLang] || {}).occasions;
+  return (map && map[key]) || CORPUS.occasions[key].name;
 }
 
 function applyLang(lang) {
@@ -74,9 +86,12 @@ function labelText(l) {
   if (typeof l === 'string') return l; // 早期版本的歷史紀錄存的是字串，相容處理
   if (l.type === 'reply') return t('out.reply');
   if (l.type === 'checklist') return t('chk.label');
-  if (l.topic) return `${styleName(l.style)}${t('out.sep')}${l.topic}`;
-  if (l.type === 'quick') return `${styleName(l.style)}${t('out.sep')}${t('out.quick')}`;
-  return styleName(l.style);
+  const bits = [styleName(l.style)];
+  if (l.occasion && l.occasion !== 'general') bits.push(occasionName(l.occasion));
+  if (l.length && l.length !== 'medium') bits.push(t('length.' + l.length));
+  if (l.topic) bits.push(l.topic);
+  else if (l.type === 'quick') bits.push(t('out.quick'));
+  return bits.join(t('out.sep'));
 }
 
 function updateDensityHint() {
@@ -102,6 +117,7 @@ function drawVals(fieldVals) {
     jargon, jargon2, jargon3,
     stuck, stuck2,
     topic: pick(W.topics),
+    holiday: pick(W.holidays),
     // 非回覆模式也可能抽到含 {keyword} 的模板（海巡型），給隨機預設值
     keyword: pick(W.a),
     keyword2: pick(W.c)
@@ -166,46 +182,31 @@ function getFieldVals() {
 function makePost(useFields, opts = {}) {
   const style = CORPUS.styles[currentStyle];
   const density = +$('density').value;
+  const length = opts.length || currentLength;
+  const occasion = opts.occasion || currentOccasion;
   // 主題欄是首要輸入，一鍵貼文也吃它；首屏示範刻意忽略，維持隨機
   const topic = opts.ignoreTopic ? '' : $('topic').value.trim();
   const fieldVals = useFields ? getFieldVals() : (topic ? { topic } : null);
   const hasTopic = !!(fieldVals && fieldVals.topic);
   const vals = drawVals(fieldVals);
+  const ctx = {
+    style, vals, density, hasTopic, topic: hasTopic ? fieldVals.topic : '',
+    pool: bodyPool(style, useFields, fieldVals, hasTopic),
+    closers: style.closers
+  };
 
-  if (currentStyle === 'thread') {
-    let sets = style.threadSets;
-    if (hasTopic) {
-      const withTopic = sets.filter(set => set.some(p => p.text.includes('{topic}')));
-      if (withTopic.length) sets = withTopic;
-    }
-    const set = pick(sets);
-    const posts = set.map(p => ({
-      text: fill(p.text, vals),
-      tags: p.tags.map(t => fill(t, vals))
-    }));
-    return { thread: posts, text: posts.map(p => p.text).join('\n\n'), tags: [] };
+  // 場合優先：骨架決定段落，本文仍取自目前的風格（§13.2）
+  if (occasion !== 'general') {
+    const occ = CORPUS.occasions[occasion];
+    return { text: assemble(pick(occ[length]), occ.parts, ctx), tags: drawTags(vals, tagCount(length)) };
   }
+  if (style.threadSets) return makeThread(style, vals, hasTopic, length);
+  if (style.day) return makeDay(style.day, vals, density, hasTopic, length);
+  if (length === 'short') return makeShort(ctx);
+  if (length === 'long') return { text: assemble(pick(CORPUS.longform.skeletons), null, ctx), tags: drawTags(vals, tagCount(length)) };
 
-  if (style.day) return makeDay(style.day, vals, density, hasTopic);
-
-  // 使用者有填欄位時，優先抽「用到最多已填欄位」的模板，填的值才會進輸出
-  let pool = style.templates;
-  if (!useFields && hasTopic) {
-    // 一鍵貼文有主題時只做軟性偏好：含 {topic} 的模板很少（順起來版只有 2/18），
-    // 硬收窄會一直重複同幾則。題目出現與否改由 compose() 的主題開場白保證；
-    // 沒有開場白的風格（質詢版）才全押在含 {topic} 的模板上。
-    const withTopic = pool.filter(tpl => tpl.includes('{topic}'));
-    if (withTopic.length && (style.noOpener || Math.random() < 0.5)) pool = withTopic;
-  } else if (fieldVals) {
-    const filledKeys = Object.entries(fieldVals).filter(([, v]) => v).map(([k]) => k);
-    if (filledKeys.length) {
-      const scored = pool.map(t => ({ t, s: filledKeys.filter(k => t.includes('{' + k + '}')).length }));
-      const best = Math.max(...scored.map(o => o.s));
-      pool = scored.filter(o => o.s === best).map(o => o.t);
-    }
-  }
-
-  const body = fill(pick(pool), vals);
+  // 中篇：本站原本的貼文
+  const body = fill(pick(ctx.pool), vals);
   let text = compose(body, vals, density, { noOpener: style.noOpener, closers: style.closers, topic: hasTopic });
   // 一鍵貼文目標 100–300 字（不含空白）；低濃度=點到為止，不硬補
   if (!useFields && density >= 1) {
@@ -215,15 +216,127 @@ function makePost(useFields, opts = {}) {
       text = text.slice(0, closerIdx) + '\n\n' + fill(pick(CORPUS.fillers), vals) + text.slice(closerIdx);
     }
   }
-  return { text, tags: drawTags(vals, 2 + rand(3)) };
+  return { text, tags: drawTags(vals, tagCount(length)) };
+}
+
+const tagCount = length => length === 'short' ? 1 : length === 'long' ? 3 + rand(3) : 2 + rand(3);
+
+/* 本文模板池：串文與生活應用版沒有單則模板，場合／篇幅需要本文時退回基礎版 */
+function bodyPool(style, useFields, fieldVals, hasTopic) {
+  let pool = style.templates || CORPUS.styles.basic.templates;
+  if (!useFields && hasTopic) {
+    // 一鍵貼文有主題時只做軟性偏好：含 {topic} 的模板很少（順起來版只有 2/18），
+    // 硬收窄會一直重複同幾則。題目出現與否改由開場白保證；
+    // 沒有開場白的風格（質詢版）才全押在含 {topic} 的模板上。
+    const withTopic = pool.filter(tpl => tpl.includes('{topic}'));
+    if (withTopic.length && (style.noOpener || Math.random() < 0.5)) pool = withTopic;
+  } else if (fieldVals) {
+    // 使用者有填欄位時，優先抽「用到最多已填欄位」的模板，填的值才會進輸出
+    const filledKeys = Object.entries(fieldVals).filter(([, v]) => v).map(([k]) => k);
+    if (filledKeys.length) {
+      const scored = pool.map(t => ({ t, s: filledKeys.filter(k => t.includes('{' + k + '}')).length }));
+      const best = Math.max(...scored.map(o => o.s));
+      pool = scored.filter(o => o.s === best).map(o => o.t);
+    }
+  }
+  return pool;
+}
+
+/* 短篇：一則留言的長度，只留本文，不加開場、填充、收尾（§13.1） */
+const SHORT_MAX = 60; // 模板本身（佔位符以兩字估）不含空白的字數上限
+const roughLen = tpl => tpl.replace(/\{\w+\}/g, 'xx').replace(/\s/g, '').length;
+
+function makeShort(ctx) {
+  const { pool, vals, hasTopic, topic, style } = ctx;
+  let short = pool.filter(t => roughLen(t) <= SHORT_MAX);
+  if (!short.length) short = [...pool].sort((x, y) => roughLen(x) - roughLen(y)).slice(0, 5);
+  if (hasTopic) {
+    const withTopic = short.filter(t => t.includes('{topic}'));
+    if (withTopic.length && (style.noOpener || Math.random() < 0.5)) short = withTopic;
+  }
+  let text = fill(pick(short), vals);
+  if (hasTopic && !text.includes(topic)) text = fill(pick(CORPUS.topicOpeners), vals) + '\n' + text;
+  return { text, tags: drawTags(vals, 1) };
+}
+
+/* 骨架組裝：依序把段落名換成文字（段落名的規則見 corpus.js「篇幅與場合」） */
+function assemble(skeleton, parts, ctx) {
+  const { vals, density, hasTopic, topic, style } = ctx;
+  const seen = {};
+  const draw = (key, list) => {
+    const used = seen[key] || (seen[key] = new Set());
+    const fresh = list.filter(x => !used.has(x));
+    const x = pick(fresh.length ? fresh : list);
+    used.add(x);
+    return fill(x, vals);
+  };
+  const out = [];
+  let glue = false; // 小標和下一段黏在一起
+  let bodies = 0;
+  const push = text => {
+    if (glue) out[out.length - 1] += '\n' + text;
+    else out.push(text);
+    glue = false;
+  };
+  const filler = () => (density === 2 && Math.random() < 0.5 ? pick(CORPUS.transitions) : '') + draw('fillers', CORPUS.fillers);
+
+  for (const key of skeleton) {
+    if (key === 'topic') { if (hasTopic) push(draw('topicOpeners', CORPUS.topicOpeners)); continue; }
+    if (key === 'opener') { if (!style.noOpener) push(draw('openers', CORPUS.openers)); continue; }
+    if (key === 'filler') { push(filler()); continue; }
+    if (key === 'fillers') { for (let i = 0; i < density; i++) push(filler()); continue; }
+    if (key === 'body') {
+      const lead = bodies++ && density === 2 && Math.random() < 0.5 ? pick(CORPUS.transitions) : '';
+      push(lead + draw('body', ctx.pool));
+      continue;
+    }
+    if (key === 'closer') {
+      let closer = draw('closers', ctx.closers || CORPUS.closers);
+      if (density === 2 && Math.random() < 0.6) closer += ' ' + pick(CORPUS.emojis);
+      push(closer);
+      continue;
+    }
+    const list = (parts && parts[key]) || CORPUS.longform.parts[key];
+    // 拼錯的段落名照原樣輸出成 {key}，讓冒煙測試抓得到，不默默吞掉
+    push(list ? draw(key, list) : '{' + key + '}');
+    if (/^h\d$/.test(key)) glue = true;
+  }
+  let text = out.join('\n\n');
+  if (hasTopic && !text.includes(topic)) text = fill(pick(CORPUS.topicOpeners), vals) + '\n\n' + text;
+  return text;
+}
+
+/* 串文：短 3 則（頭、一則中段、尾）／中 5 則／長 7 則（多插兩則別組的中段） */
+function makeThread(style, vals, hasTopic, length) {
+  let sets = style.threadSets;
+  if (hasTopic) {
+    const withTopic = sets.filter(set => set.some(p => p.text.includes('{topic}')));
+    if (withTopic.length) sets = withTopic;
+  }
+  const set = pick(sets);
+  let posts = set;
+  if (length === 'short') {
+    const mids = set.slice(1, -1);
+    const topicMids = mids.filter(p => p.text.includes('{topic}'));
+    const ends = [set[0], set[set.length - 1]];
+    const needTopic = hasTopic && !ends.some(p => p.text.includes('{topic}'));
+    posts = [set[0], pick(needTopic && topicMids.length ? topicMids : mids), set[set.length - 1]];
+  } else if (length === 'long') {
+    const others = style.threadSets.filter(x => x !== set).flatMap(x => x.slice(1, -1));
+    posts = [...set.slice(0, -1), ...pickN(others, 2), set[set.length - 1]];
+  }
+  const filled = posts.map(p => ({ text: fill(p.text, vals), tags: p.tags.map(t => fill(t, vals)) }));
+  return { thread: filled, text: filled.map(p => p.text).join('\n\n'), tags: [] };
 }
 
 /* 生活應用版：開場 → 依時間排序的時段 → 可選收尾（style-guide §12）
  * 濃度決定時段數；有主題時用一段主題情境取代其中一個時段，保證主題出現。 */
-const DAY_SCENES = [3, 4, 5];
+const DAY_SCENES = [3, 4, 5]; // 中篇依濃度
+const DAY_SHORT = 2;
+const DAY_LONG = 7;
 
-function makeDay(day, vals, density, hasTopic) {
-  const n = DAY_SCENES[density];
+function makeDay(day, vals, density, hasTopic, length = 'medium') {
+  const n = length === 'short' ? DAY_SHORT : length === 'long' ? DAY_LONG : DAY_SCENES[density];
   // 從全部時段挑 n 個，維持原本的時間順序
   const idx = pickN(day.scenes.map((_, i) => i), n).sort((x, y) => x - y);
   const scenes = idx.map(i => day.scenes[i]);
@@ -246,8 +359,9 @@ function makeDay(day, vals, density, hasTopic) {
   for (const i of order) bodies[i] = pickFresh(scenes[i].lines);
 
   const parts = [intro, ...scenes.map((sc, i) => fill(sc.slot, vals) + '：\n' + bodies[i])];
-  if (density === 2 || (density === 1 && Math.random() < 0.5)) parts.push(pickFresh(day.outros));
-  return { text: parts.join('\n\n'), tags: drawTags(vals, 2 + rand(3)) };
+  const outro = length === 'long' || (length === 'medium' && (density === 2 || (density === 1 && Math.random() < 0.5)));
+  if (outro) parts.push(pickFresh(day.outros));
+  return { text: parts.join('\n\n'), tags: drawTags(vals, tagCount(length)) };
 }
 
 /* ---------- 產生：回覆 ---------- */
@@ -507,6 +621,9 @@ function render(result, label) {
   $('char-count').textContent = result.checklist
     ? ''
     : `${result.text.replace(/\s/g, '').length} ${t('out.chars')}`;
+  // 單則貼文超過 Threads 上限時提醒（串文每則各自計算，不提示）
+  const tooLong = !result.checklist && !result.thread && [...shareText(result)].length > THREADS_LIMIT;
+  $('share-note').hidden = !tooLong;
   const out = $('output');
   out.classList.remove('visible');
   void out.offsetWidth; // 重觸發動畫
@@ -592,10 +709,12 @@ function fallbackCopy(text, done) {
 function runAction(action) {
   lastAction = action;
   const topic = $('topic').value.trim();
+  const post = { style: currentStyle, topic, occasion: currentOccasion, length: currentLength };
+  const key = [currentStyle, currentOccasion, currentLength].join(':');
   if (action.type === 'quick') {
-    render(generateUnique('quick:' + currentStyle, () => makePost(false)), { type: 'quick', style: currentStyle, topic });
+    render(generateUnique('quick:' + key, () => makePost(false)), { type: 'quick', ...post });
   } else if (action.type === 'fields') {
-    render(generateUnique('fields:' + currentStyle, () => makePost(true)), { type: 'fields', style: currentStyle, topic });
+    render(generateUnique('fields:' + key, () => makePost(true)), { type: 'fields', ...post });
   } else if (action.type === 'reply') {
     render(generateUnique('reply', () => makeReply(action.input)), { type: 'reply' });
   } else if (action.type === 'checklist') {
@@ -612,24 +731,39 @@ function setMode(mode) {
   $('reply-panel').hidden = mode !== 'reply';
   $('checklist-panel').hidden = mode !== 'checklist';
   $('style-block').hidden = mode !== 'post';
+  $('occasion-row').hidden = mode !== 'post';
+  $('length-row').hidden = mode !== 'post';
   // 濃度只影響戲仿產出，拆解模式用不到
   $('density-row').hidden = mode === 'checklist';
 }
 
-function initTabs() {
-  const tabs = $('style-tabs');
-  tabs.innerHTML = ''; // 切換語言時重建
-  STYLE_ORDER.forEach(key => {
+/* 一排可選的按鈕（風格／場合／篇幅共用）；切語言時清空重建 */
+function initChips(containerId, keys, nameOf, getCurrent, setCurrent) {
+  const box = $(containerId);
+  box.innerHTML = '';
+  keys.forEach(key => {
     const btn = document.createElement('button');
-    btn.className = 'tab' + (key === currentStyle ? ' active' : '');
-    btn.textContent = styleName(key);
+    btn.className = 'tab' + (key === getCurrent() ? ' active' : '');
+    btn.textContent = nameOf(key);
     btn.addEventListener('click', () => {
-      currentStyle = key;
-      tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      setCurrent(key);
+      box.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
+      if (containerId === 'length-tabs') updateLengthHint();
     });
-    tabs.appendChild(btn);
+    box.appendChild(btn);
   });
+}
+
+function initTabs() {
+  initChips('style-tabs', STYLE_ORDER, styleName, () => currentStyle, k => { currentStyle = k; });
+  initChips('occasion-tabs', OCCASION_ORDER, occasionName, () => currentOccasion, k => { currentOccasion = k; });
+  initChips('length-tabs', LENGTHS, k => t('length.' + k), () => currentLength, k => { currentLength = k; });
+  updateLengthHint();
+}
+
+function updateLengthHint() {
+  $('length-hint').textContent = t('length.hint.' + currentLength);
 }
 
 function randomize() {
@@ -679,7 +813,7 @@ function heroSpecimen() {
   // 首屏要在折線以上講完，太長的模板重抽；抽不到就取最短的那篇
   let best = null;
   for (let i = 0; i < 12; i++) {
-    const text = makePost(false, { ignoreTopic: true }).text;
+    const text = makePost(false, { ignoreTopic: true, length: 'medium', occasion: 'general' }).text;
     const len = text.replace(/\s/g, '').length;
     if (!best || len < best.len) best = { text, len };
     if (len <= 85) break;

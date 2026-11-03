@@ -24,7 +24,7 @@ const I18N = {
     'logo.sub': '政治語言生態系感知工具',
     'a11y.theme': '切換主題',
     'a11y.lang': '切換語言',
-    'a11y.version': '版本 1.1',
+    'a11y.version': '版本 1.2',
     'a11y.density': '廢話濃度',
 
     'hero.title1': '伯洋體',
@@ -39,6 +39,16 @@ const I18N = {
     'mode.reply': '產生回覆',
 
     'label.style': '公式風格',
+    'label.occasion': '場合',
+    'label.length': '篇幅',
+    'occasion.general': '一般貼文',
+    'length.short': '短',
+    'length.medium': '中',
+    'length.long': '長',
+    'length.hint.short': '短・一兩句，適合留言',
+    'length.hint.medium': '中・一則貼文',
+    'length.hint.long': '長・分段長文，附小標',
+    'out.tooLong': '超過 Threads 單則 500 字上限，分享前請分段，或改用「Threads 串文版」。',
     'label.density': '廢話濃度',
     'scale.low': '低',
     'scale.mid': '中',
@@ -117,11 +127,12 @@ const I18N = {
 
     'note.zhOnly': '',
 
-    'footer.version': '伯洋體產生器 1.1',
+    'footer.version': '伯洋體產生器 1.2',
     'footer.mark': '伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已',
     'footer.disclaimer': '本站為諷刺／娛樂用途之戲仿（parody）創作，所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。',
 
-    styles: null // 中文風格名直接取自 CORPUS.styles[key].name
+    styles: null,   // 中文風格名直接取自 CORPUS.styles[key].name
+    occasions: null // 中文場合名直接取自 CORPUS.occasions[key].name
   },
 
   en: {
@@ -136,7 +147,7 @@ const I18N = {
     'logo.sub': 'Political language ecosystem alignment tool',
     'a11y.theme': 'Toggle theme',
     'a11y.lang': 'Switch language',
-    'a11y.version': 'Version 1.1',
+    'a11y.version': 'Version 1.2',
     'a11y.density': 'Waffle density',
 
     'hero.title1': 'Boyangti',
@@ -151,6 +162,16 @@ const I18N = {
     'mode.reply': 'Generate reply',
 
     'label.style': 'Formula style',
+    'label.occasion': 'Occasion',
+    'label.length': 'Length',
+    'occasion.general': 'Regular post',
+    'length.short': 'Short',
+    'length.medium': 'Medium',
+    'length.long': 'Long',
+    'length.hint.short': 'Short · a line or two, comment-sized',
+    'length.hint.medium': 'Medium · one post',
+    'length.hint.long': 'Long · sectioned essay with headings',
+    'out.tooLong': 'Over Threads’ 500-character limit for one post — split it before sharing, or use the Threads-thread style.',
     'label.density': 'Waffle density',
     'scale.low': 'Low',
     'scale.mid': 'Mid',
@@ -229,7 +250,7 @@ const I18N = {
 
     'note.zhOnly': 'Interface is in English; generated output stays in Traditional Chinese — the joke only works in the original.',
 
-    'footer.version': 'Boyangti Generator 1.1',
+    'footer.version': 'Boyangti Generator 1.2',
     'footer.mark': 'Boyangti perceptual ecosystem alignment complete · it really is that simple',
     'footer.disclaimer': 'This site is a parody created for satire and media-literacy purposes. All output is assembled at random from sentence templates. It is not the speech of Shen Bo-yang and does not represent his positions.',
 
@@ -244,6 +265,14 @@ const I18N = {
       crisis: 'Crisis',
       warmth: 'Warmth',
       thread: 'Threads thread'
+    },
+
+    occasions: {
+      policy: 'Policy launch',
+      rebuttal: 'Responding to criticism',
+      apology: 'Apology statement',
+      holiday: 'Holiday greeting',
+      rally: 'Rally speech'
     }
   }
 };
