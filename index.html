@@ -23,7 +23,7 @@
   <div class="brand">
     <span class="brand-mark" aria-hidden="true">「</span>
     <h1 class="brand-name" data-i18n="logo.name">伯洋體產生器</h1>
-    <span class="brand-ver" aria-label="版本 1.1" data-i18n-aria="a11y.version">1.1</span>
+    <span class="brand-ver" aria-label="版本 1.2" data-i18n-aria="a11y.version">1.2</span>
   </div>
   <div class="bar-actions">
     <button class="switch" data-lang-toggle data-i18n-aria="a11y.lang" aria-label="切換語言"></button>
@@ -52,6 +52,19 @@
     <div class="row" id="style-block">
       <span class="row-label" data-i18n="label.style">公式風格</span>
       <div class="tabs" id="style-tabs"></div>
+    </div>
+
+    <div class="row" id="occasion-row">
+      <span class="row-label" data-i18n="label.occasion">場合</span>
+      <div class="tabs" id="occasion-tabs"></div>
+    </div>
+
+    <div class="row" id="length-row">
+      <div class="row-head">
+        <span class="row-label" data-i18n="label.length">篇幅</span>
+        <span class="row-value" id="length-hint"></span>
+      </div>
+      <div class="tabs" id="length-tabs"></div>
     </div>
 
     <div class="row" id="density-row">
@@ -125,6 +138,7 @@
       <span class="output-label" id="output-label"></span>
       <span class="output-count" id="char-count"></span>    </div>
     <div class="output-body" id="output-body"></div>
+    <p class="share-note" id="share-note" data-i18n="out.tooLong" hidden>超過 Threads 單則 500 字上限，分享前請分段，或改用「Threads 串文版」。</p>
     <div class="output-foot">
       <button class="btn btn-line" id="btn-again" data-i18n="btn.again">換一篇</button>
       <button class="btn btn-line" id="btn-copy" data-i18n="btn.copy">複製</button>
@@ -141,7 +155,7 @@
 </main>
 
 <footer class="foot">
-  <p class="foot-ver" data-i18n="footer.version">伯洋體產生器 1.1</p>
+  <p class="foot-ver" data-i18n="footer.version">伯洋體產生器 1.2</p>
   <p data-i18n="footer.mark">伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已</p>
   <p class="disclaimer" data-i18n="footer.disclaimer">本站為諷刺／娛樂用途之戲仿（parody）創作，所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。</p>
 </footer>

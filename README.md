@@ -6,7 +6,7 @@
 > piece of social media writing that sounds profound and says nothing. Or paste someone's comment
 > and get a reply that responds thoroughly without answering anything.
 
-**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.1**
+**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.2**
 
 ---
 
@@ -55,8 +55,10 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | 📝 **One-click post** | Fill in nothing, or type a topic — 颱風假, 房租, 捷運好擠 — and it gets inflated into a grand discourse. Every post opens on your topic; the rest is a 100–300 character causal ladder, a closing line, and hashtags. |
 | 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing — including the deflection patterns of the late campaign: the rhetorical "who would believe…", "they don't want to talk policy", "I've signed every debate invite", "smearing is always faster than debunking". |
 | 🔍 **Unpack a slogan** | The reverse tool. Paste a slogan and get the accountability questions it dodges — who owns it, what it costs, by when, what counts as success, by what authority, at whose cost, what if it fails. **It never generates answers**, only questions plus a literal scan of which concrete elements are absent — and which rhetorical moves are present: abstract terms highlighted, causal connectives underlined. |
+| 📏 **Length: short / medium / long** | Works with every style. *Short* is one comment-sized line; *medium* is the regular post; *long* is a sectioned essay with numbered headings — "1. Where we're stuck · 2. Why · 3. **Concrete steps** · 4. Conclusion" — where the "concrete steps" section is, of course, still abstract. Long posts over Threads' 500-character limit get a warning. |
+| 🎤 **Occasions** | Policy launch, responding to criticism, apology statement, holiday greeting, rally speech. Each occasion has its own short / medium / long skeleton, and the body paragraphs still come from the style you picked, so occasion and style combine. The apology is built so that **the longer it gets, the less it apologizes**: only the short version says sorry. |
 | 🎚 **Waffle density** | Three levels — *low* (restrained) / *medium* (pleasantly vacant) / *high* (information content approaching zero) — controlling ladder depth, filler count, and transition phrases. |
-| 🧵 **Thread mode** | One style emits a full 5-post thread, typeset as a sequence. |
+| 🧵 **Thread mode** | One style emits a thread typeset as a sequence: 3 / 5 / 7 posts by length. |
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
 | 🔁 **Reroll · 📋 Copy · 🕘 History** | Reroll with the same settings, copy with a character count, and keep the last 5 results in `localStorage`. |
 | 🔧 **Advanced mode** | Supply your own keywords; template selection narrows to the templates that actually use them. |
@@ -79,8 +81,9 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | **Threads 串文版** — Thread | Emits a full 5-post thread with hashtags, drawn from 7 skeletons. |
 
 Corpus size: **223 templates** across 10 styles (thread posts and daily-life openers, scenes and
-closers each counted once), **297 vocabulary entries** across 8 word pools, plus 35 reply templates,
-12 topic openers, 39 filler lines, 35 closers, and 59 hashtags.
+closers each counted once), **303 vocabulary entries** across 9 word pools, plus 35 reply templates,
+12 topic openers, 39 filler lines, 35 closers, and 59 hashtags — plus 117 lines across the five occasions
+and the long-form skeleton.
 
 ---
 
