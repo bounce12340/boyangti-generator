@@ -25,7 +25,7 @@ let lastResult = null;      // 複製／分享／存紀錄用
 let lastLabel = null;       // 切語言時重畫輸出標題用
 const recentOutputs = {};   // 各 style+type 近期輸出，防連按重複
 
-const STYLE_ORDER = ['basic', 'slogan', 'debate', 'academic', 'ironic', 'interpellation', 'crisis', 'warmth', 'thread'];
+const STYLE_ORDER = ['basic', 'slogan', 'debate', 'academic', 'ironic', 'daily', 'interpellation', 'crisis', 'warmth', 'thread'];
 
 /* ---------- 介面語言 ----------
  * 只翻譯介面外殼；產生出來的內容一律是繁體中文（笑點建立在中文上）。 */
@@ -186,6 +186,8 @@ function makePost(useFields, opts = {}) {
     return { thread: posts, text: posts.map(p => p.text).join('\n\n'), tags: [] };
   }
 
+  if (style.day) return makeDay(style.day, vals, density, hasTopic);
+
   // 使用者有填欄位時，優先抽「用到最多已填欄位」的模板，填的值才會進輸出
   let pool = style.templates;
   if (!useFields && hasTopic) {
@@ -214,6 +216,38 @@ function makePost(useFields, opts = {}) {
     }
   }
   return { text, tags: drawTags(vals, 2 + rand(3)) };
+}
+
+/* 生活應用版：開場 → 依時間排序的時段 → 可選收尾（style-guide §12）
+ * 濃度決定時段數；有主題時用一段主題情境取代其中一個時段，保證主題出現。 */
+const DAY_SCENES = [3, 4, 5];
+
+function makeDay(day, vals, density, hasTopic) {
+  const n = DAY_SCENES[density];
+  // 從全部時段挑 n 個，維持原本的時間順序
+  const idx = pickN(day.scenes.map((_, i) => i), n).sort((x, y) => x - y);
+  const scenes = idx.map(i => day.scenes[i]);
+  const topicAt = hasTopic ? 1 + rand(n - 1) : -1;
+  if (hasTopic) scenes[topicAt] = pick(day.topicScenes);
+
+  // 同一篇不重複同一招（m），否則每段都是「最重要的是陪伴」，笑點就沒了。
+  // 主題情境的招式最多，所以放到時段之後才挑；收尾池裡有 plain，一定挑得到。
+  const used = new Set();
+  const pickFresh = lines => {
+    const fresh = lines.filter(l => l.m === 'plain' || !used.has(l.m));
+    const line = pick(fresh.length ? fresh : lines);
+    used.add(line.m);
+    return fill(line.t, vals);
+  };
+  const intro = pickFresh(day.intros);
+  const order = scenes.map((_, i) => i).filter(i => i !== topicAt);
+  if (hasTopic) order.push(topicAt);
+  const bodies = [];
+  for (const i of order) bodies[i] = pickFresh(scenes[i].lines);
+
+  const parts = [intro, ...scenes.map((sc, i) => fill(sc.slot, vals) + '：\n' + bodies[i])];
+  if (density === 2 || (density === 1 && Math.random() < 0.5)) parts.push(pickFresh(day.outros));
+  return { text: parts.join('\n\n'), tags: drawTags(vals, 2 + rand(3)) };
 }
 
 /* ---------- 產生：回覆 ---------- */
