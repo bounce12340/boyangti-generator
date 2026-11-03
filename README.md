@@ -6,7 +6,7 @@
 > piece of social media writing that sounds profound and says nothing. Or paste someone's comment
 > and get a reply that responds thoroughly without answering anything.
 
-**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.0**
+**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.1**
 
 ---
 
@@ -63,7 +63,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | 🌐 **EN / 中 interface** | Starts in Traditional Chinese; the toggle switches to English and remembers your choice. **Generated output stays in Traditional Chinese either way** — the corpus is the joke and it doesn't survive translation. |
 | 🌙 **Themes · 📱 Responsive** | Light by default, dark one click away, choice remembered. Verified down to 375px. |
 
-### The nine styles
+### The ten styles
 
 | Style | What it does |
 |---|---|
@@ -72,13 +72,15 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | **辯論版** — Debate | Lines from the first televised mayoral debate (Oct 31, 2026): "my citizen-ism is citizens first, then a mayor", "one Taipei, two worlds", and the cross-examination dodges — "did your answer actually match my question?", "do I look like…?", "we could just add each other on LINE later". Real names stripped. |
 | **學術煙霧彈版** — Academic smokescreen | Jargon bombardment ("third-space perceptual resilience alignment"). Instant gravitas. |
 | **反串崇拜版** — Ironic worship | Sustained parody in the voice of an over-devoted follower. The most lethal register. |
+| **生活應用版** — Daily life | "I learned a few lines from a clever man, and now my whole day flows." The narrator answers breakfast orders, traffic cops and a late-to-work boss with the candidate's own sentence shapes — "breakfast needs company", "there is no can or can't, only do or don't", "do I look like a lunchbox shop?" — and everyone gives up asking. Built from a viral parody post; names stripped. |
 | **質詢版** — Interpellation | Chained rhetorical questions at an official. "Minister, is this right?" |
 | **危機感版** — Crisis | Escalates any topic to the survival of democracy. |
 | **溫情喊話版** — Warmth | Soft, late-night-murmur persuasion aimed at young people and citizens. |
 | **Threads 串文版** — Thread | Emits a full 5-post thread with hashtags, drawn from 7 skeletons. |
 
-Corpus size: **187 templates** across 9 styles, **297 vocabulary entries** across 8 word pools,
-plus 35 reply templates, 12 topic openers, 39 filler lines, 35 closers, and 56 hashtags.
+Corpus size: **223 templates** across 10 styles (thread posts and daily-life openers, scenes and
+closers each counted once), **297 vocabulary entries** across 8 word pools, plus 35 reply templates,
+12 topic openers, 39 filler lines, 35 closers, and 59 hashtags.
 
 ---
 
@@ -128,9 +130,10 @@ compose()    opener + body + fillers (+ transitions) + closer, sized by density
 drawTags()   hashtags
 ```
 
-A style is `{ name, templates }` plus three optional flags: `noOpener` (skip the opener),
-`closers` (a style-private closer pool), and `threadSets` **instead of** `templates` (5-post thread
-sets, a separate branch in `makePost()`). A new style key must also be added to `STYLE_ORDER` in
+A style is `{ name, templates }` plus optional flags: `noOpener` (skip the opener),
+`closers` (a style-private closer pool), and — **instead of** `templates` — either `threadSets`
+(5-post thread sets) or `day` (a day assembled from time-of-day scenes). Each of those last two is
+a separate branch in `makePost()`. A new style key must also be added to `STYLE_ORDER` in
 `app.js` or no tab renders for it.
 
 Generated text is always written with `textContent`, never `innerHTML` — reply mode echoes user

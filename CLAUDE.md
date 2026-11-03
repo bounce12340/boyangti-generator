@@ -55,14 +55,15 @@ drawTags()   → hashtags
 
 ### Adding or changing a style
 
-Each entry in `CORPUS.styles` is `{ name, templates }` plus three optional flags:
+Each entry in `CORPUS.styles` is `{ name, templates }` plus optional flags:
 - `noOpener: true` — skip the post-style opener (used by 質詢版, which starts mid-interpellation).
 - `closers` — a style-private closer pool that replaces `CORPUS.closers` for that style (used by 順起來版 so the campaign slogan lands in every post). Reply mode always uses the global pool.
 - `threadSets` **instead of** `templates` — an array of 5-post sets, each post `{ text, tags }`. This is a separate branch in `makePost()` and returns `{ thread: [...] }`, which changes rendering, `shareText()`, and the share intent.
+- `day` **instead of** `templates` — used by 生活應用版 (`daily`, from `style-guide.md` §12). `{ intros, scenes, topicScenes, outros }`; each scene is `{ slot, lines }` and the `scenes` array is in time-of-day order. `makeDay()` picks `DAY_SCENES[density]` scenes (3/4/5), keeps their order, swaps one for a `topicScenes` entry when a topic is set, and adds an outro at density 2 (50% at 1). Every line is `{ m, t }`: `t` is the text, `m` names the move it uses (`accompany`, `binary`, `lookalike`…). One post never repeats a move except `plain` — without that rule a day reads 「最重要的是陪伴」 five times. Keep at least one `plain` outro, and give each scene at least one move no earlier scene can use, so a fresh line always exists. At density 2 the output tops out under Threads' 500-char limit; check that when adding long lines. Advanced-mode fields other than `{topic}` are ignored by this style.
 
 A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is rendered for it, and to `I18N.en.styles` or English mode shows the Chinese name.
 
-The 辯論版 (`debate`) style and the §11.2 reply block come from a televised debate, where most of what was said is the two candidates attacking each other. Only the speaker's own sentence *shapes* made it in; every real person's name and place name was stripped (see `style-guide.md` §11.3). Keep it that way when adding material from future debates.
+The 辯論版 (`debate`) style and the §11.2 reply block come from a televised debate, where most of what was said is the two candidates attacking each other. Only the speaker's own sentence *shapes* made it in; every real person's name and place name was stripped (see `style-guide.md` §11.3). Keep it that way when adding material from future debates. The same goes for fan-made parodies like the §12 source post: the candidate's nickname (Puma) and the supporters' self-name (洋流) were stripped, and a line the post attributes to him that is really an opponent's paraphrase (「你怎麼不早點講」) is flagged as such in the style guide.
 
 ### Unpack mode (`data/checklist.js`)
 
@@ -112,7 +113,7 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 
 ### Version label
 
-The site is **伯洋體產生器 1.0**. The number is written out by hand in four places, so a version bump touches all of them: the `.brand-ver` span in the `index.html` header, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
+The site is **伯洋體產生器 1.1** (1.0 → 1.1 added 生活應用版). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
 
 ### Rendering, storage, theming
 
@@ -126,7 +127,7 @@ The site is **伯洋體產生器 1.0**. The number is written out by hand in fou
 `data/style-guide.md` is the sourced analysis behind the corpus, including a full URL list graded 官方 / 一手 / 二手 / 論壇 and an honest list of unverified items. Its constraints govern `data/corpus.js`:
 
 - Imitate **speech style only**. No factual allegations, personal attacks, or private-life content about any real person.
-- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6, §10.4 and §11.4 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
+- When adding material from a fresh news cycle, write the analysis into `style-guide.md` *first* (a numbered section plus a source-list category), then derive templates from it. §9.6, §10.4, §11.4 and §12.4 are the precedent for the other half of that job: material that was researched and then **deliberately excluded** gets listed with the reason, so a later pass doesn't "rediscover" it and add it.
 - Every new template keeps a trailing provenance comment — `〔原站〕`, `〔一手〕`, `〔二手〕`, or `〔論壇〕` — matching the existing entries.
 - The parody disclaimer in the `index.html` footer and in the README must stay.
 
