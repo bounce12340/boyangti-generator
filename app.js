@@ -28,7 +28,8 @@ let lastLabel = null;       // 切語言時重畫輸出標題用
 const recentOutputs = {};   // 各 style+type 近期輸出，防連按重複
 
 const STYLE_ORDER = ['basic', 'slogan', 'debate', 'academic', 'ironic', 'daily', 'interpellation', 'crisis', 'warmth', 'thread'];
-const OCCASION_ORDER = ['general', 'policy', 'rebuttal', 'apology', 'holiday', 'rally'];
+const OCCASION_ORDER = ['general', 'policy', 'rebuttal', 'apology', 'holiday', 'rally',
+  'meeting', 'wedding', 'yearend', 'graduation', 'interview', 'family'];
 const LENGTHS = ['short', 'medium', 'long'];
 const THREADS_LIMIT = 500; // Threads 單則字數上限，長文超過時提示
 
@@ -243,6 +244,7 @@ function bodyPool(style, useFields, fieldVals, hasTopic) {
 }
 
 /* 短篇：一則留言的長度，只留本文，不加開場、填充、收尾（§13.1） */
+const QUOTE_SHORT = 0.3; // 一般短篇改用經典語錄的機率
 const SHORT_MAX = 60; // 模板本身（佔位符以兩字估）不含空白的字數上限
 const roughLen = tpl => tpl.replace(/\{\w+\}/g, 'xx').replace(/\s/g, '').length;
 
@@ -254,7 +256,8 @@ function makeShort(ctx) {
     const withTopic = short.filter(t => t.includes('{topic}'));
     if (withTopic.length && (style.noOpener || Math.random() < 0.5)) short = withTopic;
   }
-  let text = fill(pick(short), vals);
+  // 三成機率直接甩一句經典語錄（§14）：短篇最適合原封不動地引用
+  let text = Math.random() < QUOTE_SHORT ? pick(CORPUS.quotes.lines) : fill(pick(short), vals);
   if (hasTopic && !text.includes(topic)) text = fill(pick(CORPUS.topicOpeners), vals) + '\n' + text;
   return { text, tags: drawTags(vals, 1) };
 }
@@ -284,6 +287,7 @@ function assemble(skeleton, parts, ctx) {
     if (key === 'topic') { if (hasTopic) push(draw('topicOpeners', CORPUS.topicOpeners)); continue; }
     if (key === 'opener') { if (!style.noOpener) push(draw('openers', CORPUS.openers)); continue; }
     if (key === 'filler') { push(filler()); continue; }
+    if (key === 'quote') { push(pick(CORPUS.quotes.leads) + draw('quotes', CORPUS.quotes.lines)); continue; }
     if (key === 'fillers') { for (let i = 0; i < density; i++) push(filler()); continue; }
     if (key === 'body') {
       const lead = bodies++ && density === 2 && Math.random() < 0.5 ? pick(CORPUS.transitions) : '';

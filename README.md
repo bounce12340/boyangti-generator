@@ -56,7 +56,8 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing — including the deflection patterns of the late campaign: the rhetorical "who would believe…", "they don't want to talk policy", "I've signed every debate invite", "smearing is always faster than debunking". |
 | 🔍 **Unpack a slogan** | The reverse tool. Paste a slogan and get the accountability questions it dodges — who owns it, what it costs, by when, what counts as success, by what authority, at whose cost, what if it fails. **It never generates answers**, only questions plus a literal scan of which concrete elements are absent — and which rhetorical moves are present: abstract terms highlighted, causal connectives underlined. |
 | 📏 **Length: short / medium / long** | Works with every style. *Short* is one comment-sized line; *medium* is the regular post; *long* is a sectioned essay with numbered headings — "1. Where we're stuck · 2. Why · 3. **Concrete steps** · 4. Conclusion" — where the "concrete steps" section is, of course, still abstract. Long posts over Threads' 500-character limit get a warning. |
-| 🎤 **Occasions** | Policy launch, responding to criticism, apology statement, holiday greeting, rally speech. Each occasion has its own short / medium / long skeleton, and the body paragraphs still come from the style you picked, so occasion and style combine. The apology is built so that **the longer it gets, the less it apologizes**: only the short version says sorry. |
+| 🎤 **Occasions** | Eleven of them. Five political — policy launch, responding to criticism, apology statement, holiday greeting, rally speech — and six from everyday life: work meeting, wedding toast, year-end party, graduation speech, job interview, and the family New Year interrogation ("When are you getting married?" — "The shortest shortcut is the long way round."). Each occasion has its own short / medium / long skeleton, and the body paragraphs still come from the style you picked, so occasion and style combine. The apology is built so that **the longer it gets, the less it apologizes**: only the short version says sorry. |
+| 💬 **Classic quotes** | Fifteen of the candidate's most-circulated lines, verbatim — "urban renewal needs groundbreaking and completion, but most of all it needs *company*", "the ocean current is warm, it brings fish, it doesn't scald", "this part isn't in the script", "as long as he's happy" — dropped whole into any occasion: a wedding toast, a job interview, a year-end bonus speech. Real names stripped, attacks on opponents left out. |
 | 🎚 **Waffle density** | Three levels — *low* (restrained) / *medium* (pleasantly vacant) / *high* (information content approaching zero) — controlling ladder depth, filler count, and transition phrases. |
 | 🧵 **Thread mode** | One style emits a thread typeset as a sequence: 3 / 5 / 7 posts by length. |
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
@@ -80,9 +81,9 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | **溫情喊話版** — Warmth | Soft, late-night-murmur persuasion aimed at young people and citizens. |
 | **Threads 串文版** — Thread | Emits a full 5-post thread with hashtags, drawn from 7 skeletons. |
 
-Corpus size: **223 templates** across 10 styles (thread posts and daily-life openers, scenes and
-closers each counted once), **303 vocabulary entries** across 9 word pools, plus 35 reply templates,
-12 topic openers, 39 filler lines, 35 closers, and 59 hashtags — plus 117 lines across the five occasions
+Corpus size: **225 templates** across 10 styles (thread posts and daily-life openers, scenes and
+closers each counted once), **303 vocabulary entries** across 9 word pools, plus 40 reply templates, 15 classic quotes,
+12 topic openers, 39 filler lines, 35 closers, and 62 hashtags — plus 207 lines across the eleven occasions
 and the long-form skeleton.
 
 ---
