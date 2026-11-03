@@ -348,6 +348,11 @@ mark.rh-con {
   border-top: 1px solid var(--rule);
   font-size: var(--t-fine); color: var(--ink-2); line-height: 1.8;
 }
+.rewrite-report {
+  margin: var(--s3) 0 0; padding: var(--s3) var(--s4);
+  font-size: var(--t-fine); color: var(--ink);
+  border-left: 3px solid var(--marker);
+}
 .share-note {
   margin: 0; padding: var(--s3) var(--s5);
   font-size: var(--t-fine); color: var(--ink-2);

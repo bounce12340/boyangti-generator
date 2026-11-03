@@ -15,13 +15,13 @@ There is no build step, package manager, test suite, or linter — the site is p
 python3 -m http.server 8000
 ```
 
-Verification is manual: open the page, exercise each style tab × each density setting × all three modes, plus each occasion × each length in post mode, and check dark/light and 375px width.
+Verification is manual: open the page, exercise each style tab × each density setting × all four modes, plus each occasion × each length in post mode and a pasted article in rewrite mode, and check dark/light and 375px width.
 
 ## Architecture
 
 Six files, one hard dependency edge: `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and `data/checklist.js` (global `CHECKLIST`) **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — generated strings come from `CORPUS`, interface strings from `I18N`, unpack-mode questions from `CHECKLIST`.
 
-There are three modes: `post` and `reply` produce parody, `checklist` does the opposite — it takes a slogan apart. See [Unpack mode](#unpack-mode-datachecklistjs).
+There are four modes: `post` and `reply` produce parody; `rewrite` turns a concrete article into parody; `checklist` does the opposite — it takes a slogan apart. See [Rewrite mode](#rewrite-mode-corpusrewrite) and [Unpack mode](#unpack-mode-datachecklistjs).
 
 ### Generation pipeline (`app.js`)
 
@@ -80,6 +80,15 @@ A new style key must also be added to `STYLE_ORDER` in `app.js` or no tab is ren
 
 The 辯論版 (`debate`) style and the §11.2 reply block come from a televised debate, where most of what was said is the two candidates attacking each other. Only the speaker's own sentence *shapes* made it in; every real person's name and place name was stripped (see `style-guide.md` §11.3). Keep it that way when adding material from future debates. The same goes for fan-made parodies like the §12 source post: the candidate's nickname (Puma) and the supporters' self-name (洋流) were stripped, and a line the post attributes to him that is really an opponent's paraphrase (「你怎麼不早點講」) is flagged as such in the style guide.
 
+### Rewrite mode (`CORPUS.rewrite`)
+
+The inverse of unpack mode (`style-guide.md` §15): paste a serious article, get it back in 伯洋體 with every checkable fact removed. `makeRewrite()` takes the first `REWRITE_SENTENCES[density]` (3/5/8) sentences from `splitSentences()` and for each one:
+
+1. `deconcretize()` runs `CORPUS.rewrite.swaps` **in order** (money, percent, date, duration, law, count, agency, bare number — order matters: 「第3條」 must hit `law` before `count` eats 「3條」, and bare numbers go last). Each match becomes a Private Use Area marker (`U+E000 + index`) first, adjacent identical markers collapse to one, then each marker is replaced from that swap's abstract `to` pool. The marker must not contain digits, or the bare-number swap eats it — that bug shipped once in development and turned every replacement into 「一些」. Then `verbs` does whole-word concrete→abstract verb swaps.
+2. With probability `REWRITE_INFLATE[density]` an `inflate` line is appended, bound to a keyword from `rewriteKeywords()`, which strips the concrete matches first, splits on `KW_SPLIT` policy verbs as well as `STOP_RE`, and keeps only 2–4-character segments — so keywords are nouns like 通勤時間, never 「年前投入」 or an agency name.
+
+Density ≥ 1 adds a `ladders` line, density 2 a classic quote. The result always ends with `CORPUS.rewrite.signoff`, a fixed self-label, because pasted text can name real people and the rewrite must not circulate as if it were the original — **do not make the sign-off optional**. `result.rewrite = { removed, total, sentences }` drives `rewriteReport()`, a `textContent`-only note under the card listing what was removed; when nothing was removed it says the original was already 伯洋體. Swaps only ever remove facts; never add a `to` entry containing a number, date, name or agency.
+
 ### Unpack mode (`data/checklist.js`)
 
 The media-literacy half of the site: paste a slogan, get the accountability questions it dodges. **`data/checklist.js` is not parody content** — it carries no `〔一手〕`-style provenance comments and is *not* governed by the `style-guide.md` content rules below.
@@ -128,7 +137,7 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 
 ### Version label
 
-The site is **伯洋體產生器 1.2** (1.1 added 生活應用版; 1.2 added length and occasions). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
+The site is **伯洋體產生器 1.3** (1.1 added 生活應用版; 1.2 added length, occasions and classic quotes; 1.3 added the rewrite engine). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
 
 ### Rendering, storage, theming
 

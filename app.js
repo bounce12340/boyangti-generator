@@ -87,6 +87,7 @@ function labelText(l) {
   if (typeof l === 'string') return l; // 早期版本的歷史紀錄存的是字串，相容處理
   if (l.type === 'reply') return t('out.reply');
   if (l.type === 'checklist') return t('chk.label');
+  if (l.type === 'rewrite') return t('out.rewrite');
   const bits = [styleName(l.style)];
   if (l.occasion && l.occasion !== 'general') bits.push(occasionName(l.occasion));
   if (l.length && l.length !== 'medium') bits.push(t('length.' + l.length));
@@ -368,6 +369,86 @@ function makeDay(day, vals, density, hasTopic, length = 'medium') {
   return { text: parts.join('\n\n'), tags: drawTags(vals, tagCount(length)) };
 }
 
+/* ---------- 改文引擎（style-guide §15） ----------
+ * 一篇具體的文章 → 伯洋體：拿掉具體元素、換掉具體動詞、每句接上遞進。
+ * 只刪除不新增：替代詞全是抽象詞，結果最後一行固定附自我標示。 */
+const REWRITE_SENTENCES = [3, 5, 8]; // 依濃度改寫前幾句
+const REWRITE_INFLATE = [0.5, 0.8, 1]; // 每句接上遞進的機率
+
+function splitSentences(text) {
+  return (text.match(/[^。！？!?；;\n]+[。！？!?；;]?/g) || [])
+    .map(x => x.trim())
+    .filter(x => /[一-鿿]/.test(x));
+}
+
+function deconcretize(sentence, removed) {
+  const R = CORPUS.rewrite;
+  // 先換成私用區字元當記號（不能含數字，否則會被後面的「裸數字」規則吃掉），
+  // 相鄰的同類記號合併成一個（「《條例》第3條」只換一次）
+  const mark = i => String.fromCharCode(0xE000 + i);
+  let x = sentence;
+  R.swaps.forEach((sw, i) => {
+    x = x.replace(sw.re, () => { removed[sw.key] = (removed[sw.key] || 0) + 1; return mark(i); });
+  });
+  x = x.replace(/([\uE000-\uE0FF])(?:\s*\1)+/g, '$1');
+  x = x.replace(/[\uE000-\uE0FF]/g, ch => pick(R.swaps[ch.charCodeAt(0) - 0xE000].to));
+  for (const [from, to] of R.verbs) x = x.split(from).join(to);
+  return /[。！？!?；;]$/.test(x) ? x : x + '。';
+}
+
+/* 膨脹用的關鍵詞：先把具體元素整段挖掉再斷詞，只留 2–4 字的詞，避免抓到「年前投入」這種碎片 */
+const KW_NUMERAL = /[\d一二兩三四五六七八九十百千萬億]/;
+// 政策文章常見的動詞與虛詞：在這些地方再切一刀，名詞才會從「大安區增設」裡分出來
+const KW_SPLIT = /宣布|表示|編列|增設|新增|投入|辦理|可讓|受惠|今日|預計|推動|提高|提升|降低|減少|增加|擴大|興建|完成|開放|縮短|執行|改善|規劃|評估|實施|公告|相關|預計|目前|透過|進行|針對|包括|以及|並|依|將|已|達|讓|於|此/g;
+function rewriteKeywords(text) {
+  let stripped = text;
+  for (const sw of CORPUS.rewrite.swaps) stripped = stripped.replace(sw.re, '，');
+  const segs = [];
+  for (const run of stripped.replace(KW_SPLIT, '，').match(/[一-鿿]+/g) || []) {
+    for (const seg of run.split(STOP_RE)) if (seg.length >= 2 && seg.length <= 4 && !KW_NUMERAL.test(seg)) segs.push(seg);
+  }
+  // 長的優先（四字詞通常是完整名詞），再保留一點隨機性
+  const uniq = [...new Set(segs)].sort((x, y) => y.length - x.length);
+  return pickN(uniq.slice(0, 4), Math.min(uniq.length, 3));
+}
+
+function makeRewrite(inputText) {
+  const R = CORPUS.rewrite;
+  const density = +$('density').value;
+  const vals = drawVals();
+  const removed = {};
+  const sentences = splitSentences(inputText).slice(0, REWRITE_SENTENCES[density]);
+  const docKws = rewriteKeywords(inputText);
+  const usedInflate = new Set();
+  const inflate = () => {
+    const fresh = R.inflate.filter(t => !usedInflate.has(t));
+    const t = pick(fresh.length ? fresh : R.inflate);
+    usedInflate.add(t);
+    return t;
+  };
+
+  const paras = sentences.map(sen => {
+    const kw = rewriteKeywords(sen)[0] || docKws[0] || '這件事';
+    let p = deconcretize(sen, removed);
+    if (Math.random() < REWRITE_INFLATE[density]) p += '\n' + fill(inflate(), { ...vals, keyword: kw });
+    return p;
+  });
+
+  const keyword = docKws[0] || '這件事';
+  const parts = [pick(R.openers), ...paras];
+  if (density >= 1 && paras.length) parts.splice(Math.min(3, parts.length), 0, fill(pick(R.ladders), { ...vals, keyword }));
+  if (density === 2) parts.push(pick(CORPUS.quotes.leads) + pick(CORPUS.quotes.lines));
+  parts.push(fill(pick(CORPUS.closers), vals));
+  parts.push(R.signoff);
+
+  const total = Object.values(removed).reduce((a, b) => a + b, 0);
+  return {
+    text: parts.join('\n\n'),
+    tags: drawTags({ ...vals, topic: keyword }, 2),
+    rewrite: { removed, total, sentences: sentences.length }
+  };
+}
+
 /* ---------- 產生：回覆 ---------- */
 const STOP_CHARS = '的了嗎嘛吧呢啊喔哦欸是在就都而與跟和或也很還又才只沒不你我他她它們個為對到底把被讓有無除等要會能可過再更最從及以喊、，。！？：；「」（）()!?.,~ 　';
 const STOP_RE = new RegExp('[' + STOP_CHARS.replace(/[()[\]]/g, '\\$&') + ']+');
@@ -484,6 +565,21 @@ function checklistText(input, groups, rhetoric) {
 }
 
 /* ---------- 輸出渲染（Threads 卡片） ---------- */
+/* 改寫報告：這次拿掉了什麼（textContent，不碰 innerHTML） */
+function rewriteReport(rw) {
+  const p = document.createElement('p');
+  p.className = 'rewrite-report';
+  if (!rw.total) {
+    p.textContent = t('rw.none');
+    return p;
+  }
+  const bits = CORPUS.rewrite.swaps
+    .filter(sw => rw.removed[sw.key])
+    .map(sw => t('rw.item', { n: rw.removed[sw.key], what: t('rw.cat.' + sw.key) }));
+  p.textContent = t('rw.report', { n: rw.sentences, list: bits.join(t('rw.sep')) });
+  return p;
+}
+
 function postCard(post, numLabel) {
   const art = document.createElement('article');
   art.className = 'post';
@@ -617,6 +713,7 @@ function render(result, label) {
     const posts = result.thread || [{ text: result.text, tags: result.tags }];
     posts.forEach((p, i) => bodyEl.appendChild(
       postCard(p, result.thread ? t('out.thread', { i: i + 1, n: posts.length }) : null)));
+    if (result.rewrite) bodyEl.appendChild(rewriteReport(result.rewrite));
   }
 
   // 拆解結果是固定的，重骰沒有意義；分享用的是問題清單而非戲仿貼文
@@ -721,6 +818,8 @@ function runAction(action) {
     render(generateUnique('fields:' + key, () => makePost(true)), { type: 'fields', ...post });
   } else if (action.type === 'reply') {
     render(generateUnique('reply', () => makeReply(action.input)), { type: 'reply' });
+  } else if (action.type === 'rewrite') {
+    render(generateUnique('rewrite', () => makeRewrite(action.input)), { type: 'rewrite' });
   } else if (action.type === 'checklist') {
     // 同樣輸入應得到同樣的問題清單，故不重骰
     render(makeChecklist(action.input), { type: 'checklist' });
@@ -734,6 +833,7 @@ function setMode(mode) {
   $('post-panel').hidden = mode !== 'post';
   $('reply-panel').hidden = mode !== 'reply';
   $('checklist-panel').hidden = mode !== 'checklist';
+  $('rewrite-panel').hidden = mode !== 'rewrite';
   $('style-block').hidden = mode !== 'post';
   $('occasion-row').hidden = mode !== 'post';
   $('length-row').hidden = mode !== 'post';
@@ -910,6 +1010,19 @@ document.addEventListener('DOMContentLoaded', () => {
     runAction({ type: 'checklist', input });
   });
   $('checklist-input').addEventListener('input', () => { $('checklist-warn').hidden = true; });
+
+  $('btn-rewrite').addEventListener('click', () => {
+    const input = $('rewrite-input').value.trim();
+    const warn = $('rewrite-warn');
+    if (!splitSentences(input).length) {
+      warn.hidden = false;
+      $('rewrite-input').focus();
+      return;
+    }
+    warn.hidden = true;
+    runAction({ type: 'rewrite', input });
+  });
+  $('rewrite-input').addEventListener('input', () => { $('rewrite-warn').hidden = true; });
 
   $('btn-again').addEventListener('click', () => { if (lastAction) runAction(lastAction); });
   $('btn-copy').addEventListener('click', e => { if (lastResult) copyText(shareText(lastResult), e.currentTarget); });

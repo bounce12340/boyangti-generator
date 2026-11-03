@@ -6,7 +6,7 @@
 > piece of social media writing that sounds profound and says nothing. Or paste someone's comment
 > and get a reply that responds thoroughly without answering anything.
 
-**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.2**
+**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.3**
 
 ---
 
@@ -54,6 +54,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 |---|---|
 | 📝 **One-click post** | Fill in nothing, or type a topic — 颱風假, 房租, 捷運好擠 — and it gets inflated into a grand discourse. Every post opens on your topic; the rest is a 100–300 character causal ladder, a closing line, and hashtags. |
 | 💬 **Reply mode** | Paste someone's comment. A hand-rolled CJK tokenizer pulls keywords out of it and folds them into a reply that engages fully and answers nothing — including the deflection patterns of the late campaign: the rhetorical "who would believe…", "they don't want to talk policy", "I've signed every debate invite", "smearing is always faster than debunking". |
+| ✍️ **Rewrite as waffle** | Paste a perfectly serious article — a press release, a policy announcement — and get it back in Boyangti. Every amount, percentage, date, timeframe, quantity, agency and legal reference is swapped for an abstraction ("NT$300 million" → "the necessary resources", "by 2027" → "at the right time", "the Department of Transportation" → "the cross-departmental junction"), concrete verbs become soft ones, and each sentence gets a causal ladder. A note underneath counts what was removed — which is exactly how much information the original had. It only removes facts, never adds any, and the last line always says the text was rewritten automatically. |
 | 🔍 **Unpack a slogan** | The reverse tool. Paste a slogan and get the accountability questions it dodges — who owns it, what it costs, by when, what counts as success, by what authority, at whose cost, what if it fails. **It never generates answers**, only questions plus a literal scan of which concrete elements are absent — and which rhetorical moves are present: abstract terms highlighted, causal connectives underlined. |
 | 📏 **Length: short / medium / long** | Works with every style. *Short* is one comment-sized line; *medium* is the regular post; *long* is a sectioned essay with numbered headings — "1. Where we're stuck · 2. Why · 3. **Concrete steps** · 4. Conclusion" — where the "concrete steps" section is, of course, still abstract. Long posts over Threads' 500-character limit get a warning. |
 | 🎤 **Occasions** | Eleven of them. Five political — policy launch, responding to criticism, apology statement, holiday greeting, rally speech — and six from everyday life: work meeting, wedding toast, year-end party, graduation speech, job interview, and the family New Year interrogation ("When are you getting married?" — "The shortest shortcut is the long way round."). Each occasion has its own short / medium / long skeleton, and the body paragraphs still come from the style you picked, so occasion and style combine. The apology is built so that **the longer it gets, the less it apologizes**: only the short version says sorry. |
@@ -176,7 +177,7 @@ Its constraints govern every corpus edit:
 - Font: [Satoshi](https://www.fontshare.com/fonts/satoshi) via the Fontshare CDN — the only external
   request the page makes. It degrades to `PingFang TC` / `Microsoft JhengHei` if blocked.
 - Deployed to GitHub Pages from `main`.
-- Verification is manual: exercise each style × each density × both modes, in dark and light, at
+- Verification is manual: exercise each style × each density × all four modes, each occasion × each length, in dark and light, at
   375px width.
 
 ---
