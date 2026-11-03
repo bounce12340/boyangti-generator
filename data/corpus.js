@@ -272,7 +272,9 @@ const CORPUS = {
     // 首場電視辯論（style-guide §11）〔二手〕
     '#先有市民才有市長', '#一個台北兩個世界', '#有搭嗎', '#晚點加LINE',
     // 網友仿作「我的一天」（style-guide §12）〔論壇〕
-    '#最重要的是陪伴', '#只有做跟不做', '#我長得像便當店嗎'
+    '#最重要的是陪伴', '#只有做跟不做', '#我長得像便當店嗎',
+    // 經典語錄（style-guide §14）〔二手〕
+    '#都更需要的是陪伴', '#他開心就好', '#最短的捷徑就是繞遠路'
   ],
 
   /* ---------- emoji 池 ---------- */
@@ -363,7 +365,9 @@ const CORPUS = {
         '在整個討論{topic}的過程當中，\n你一直急著證明自己沒有錯。\n\n但我想告訴你的是，我會怎麼做：\n先有{a}，再有{b}，最後是{c}。', // 〔二手〕第三人稱談自己（改回第一人稱）
         '你知道這句話是誰說的嗎？\n\n「{a}是{c}的根本。」\n\n這是你說的。', // 〔二手〕引言回擲
         '批評要根基於事實，\n不要用假消息來抹黑。\n\n我們回到{topic}本身：\n{a}在哪裡，{b}怎麼來。', // 〔二手〕事實訴求
-        '既然那麼多問題沒有回答，\n有沒有機會我們再約下一次？\n\n如果現在沒有辦法決定，\n等一下晚點加 LINE 也可以。' // 〔二手〕再約一次
+        '既然那麼多問題沒有回答，\n有沒有機會我們再約下一次？\n\n如果現在沒有辦法決定，\n等一下晚點加 LINE 也可以。', // 〔二手〕再約一次
+        '都更需要的是動工跟完工。\n\n但都更最重要的，\n是陪伴。', // 〔二手〕§14.1 原句
+        '{topic}需要的是動工跟完工，\n但{topic}最重要的，是陪伴。\n\n沒有陪伴的{topic}，\n只是一堆{stuck}。' // 〔二手〕§14.1 都更句套主題
       ]
     },
 
@@ -638,15 +642,38 @@ const CORPUS = {
    *   topic   → 有主題時插入主題開場白
    *   opener / filler / closer → 全域開場白、一句填充句、收尾（風格有私有收尾就用私有的）
    *   fillers → 依濃度 0／1／2 句填充句
+   *   quote   → 一句經典語錄（quotes.lines），前面配引言
    *   h1–h4   → 小標，和下一段黏在同一段
    *   其他    → 先找場合自己的 parts，找不到再找 longform.parts
    * 同一篇裡同一個段落池不重複抽同一句。 */
 
+  /* 經典語錄（style-guide §14）：整句收錄，任何場合的骨架都能用 quote 段落引用 */
+  quotes: {
+    leads: ['就像我常說的：', '還是那句老話：', '套一句我很喜歡的話：', '我一直相信一句話：', '所以我才說：'], // 〔論壇〕引言
+    lines: [
+      '都更需要的是動工跟完工，但最重要的是陪伴。', // 〔二手〕§14.1 原句（辯論）
+      '洋流是溫暖的，可以帶來漁獲，不會燙傷人。', // 〔二手〕§14.1
+      '最短的捷徑，就是繞遠路。', // 〔二手〕§14.1（引自動漫台詞）
+      '這稿子沒有寫。', // 〔二手〕§14.1
+      '我本來就不是以外表取勝。', // 〔二手〕§14.1
+      '他開心就好。', // 〔二手〕§14.1
+      '悠閒生活，其實重點是時間能空出來。', // 〔二手〕§14.1（辯論）
+      '它可能就像溫度計上面的溫度一樣，但它不是我們的體感溫度。', // 〔二手〕§14.1（辯論）
+      '我們是小火炬，是世上的光。', // 〔二手〕§14.1（辯論）
+      '雁過留聲，不必留名；牆上無名，碗中有味。', // 〔一手〕§14.1（本人 Threads）
+      '你不能夠等到更晚的時候講，因為那個傳播力已經消失。', // 〔一手〕§14.1（專訪）
+      '沒有做不做得到，只有做跟不做。', // 〔二手〕§12.2
+      '先有市民，才有市長。', // 〔二手〕§11.1
+      '一個台北，兩個世界。', // 〔二手〕§11.1
+      '就是那麼簡單的道理而已。' // 〔一手〕§3.1
+    ]
+  },
+
   /* 通用長文：「一、二、三、四」小標承諾具體做法，底下仍是抽象詞（§13.1） */
   longform: {
     skeletons: [
-      ['title', 'topic', 'opener', 'filler', 'fillers', 'h1', 'problem', 'problem', 'body', 'h2', 'why', 'body', 'filler', 'h3', 'how', 'how', 'body', 'h4', 'fillers', 'filler', 'closer'],
-      ['title', 'topic', 'h1', 'problem', 'why', 'body', 'h2', 'body', 'filler', 'why', 'h3', 'how', 'how', 'fillers', 'h4', 'body', 'filler', 'closer']
+      ['title', 'topic', 'opener', 'filler', 'fillers', 'h1', 'problem', 'problem', 'body', 'h2', 'why', 'body', 'filler', 'h3', 'how', 'how', 'body', 'h4', 'quote', 'fillers', 'filler', 'closer'],
+      ['title', 'topic', 'h1', 'problem', 'why', 'body', 'h2', 'body', 'filler', 'why', 'h3', 'how', 'how', 'fillers', 'h4', 'quote', 'body', 'filler', 'closer']
     ],
     parts: {
       title: [
@@ -685,8 +712,8 @@ const CORPUS = {
     policy: {
       name: '政見發表',
       short: [['promise'], ['vision', 'slogan']],
-      medium: [['greet', 'topic', 'vision', 'body', 'promise', 'slogan'], ['greet', 'problem', 'vision', 'body', 'slogan']],
-      long: [['greet', 'topic', 'h1', 'problem', 'problem', 'why', 'h2', 'vision', 'vision', 'body', 'filler', 'h3', 'pillars', 'body', 'h4', 'how', 'how', 'fillers', 'promise', 'slogan']],
+      medium: [['greet', 'topic', 'vision', 'body', 'promise', 'slogan'], ['greet', 'problem', 'vision', 'quote', 'body', 'slogan']],
+      long: [['greet', 'topic', 'h1', 'problem', 'problem', 'why', 'h2', 'vision', 'vision', 'body', 'filler', 'h3', 'pillars', 'body', 'quote', 'h4', 'how', 'how', 'fillers', 'promise', 'slogan']],
       parts: {
         greet: [
           '各位台北市民，大家好。', // 〔論壇〕政見會開場
@@ -716,9 +743,9 @@ const CORPUS = {
 
     rebuttal: {
       name: '回應質疑',
-      short: [['counter'], ['reframe']],
-      medium: [['ack', 'reframe', 'counter', 'pivot'], ['ack', 'counter', 'body', 'invite']],
-      long: [['ack', 'topic', 'h1', 'reframe', 'reframe', 'body', 'filler', 'h2', 'counter', 'counter', 'counter', 'body', 'h3', 'pivot', 'body', 'fillers', 'invite', 'closer']],
+      short: [['counter'], ['reframe'], ['quote']],
+      medium: [['ack', 'reframe', 'counter', 'pivot'], ['ack', 'counter', 'body', 'quote', 'invite']],
+      long: [['ack', 'topic', 'h1', 'reframe', 'reframe', 'body', 'filler', 'h2', 'counter', 'counter', 'counter', 'body', 'h3', 'pivot', 'quote', 'body', 'fillers', 'invite', 'closer']],
       parts: {
         ack: [
           '謝謝大家的關心與指教。', // 〔論壇〕聲明開場
@@ -756,8 +783,8 @@ const CORPUS = {
       name: '道歉聲明',
       // 短版是本人的直接道歉；越長，道歉越少（§13.2）
       short: [['sorry']],
-      medium: [['vague', 'define', 'body', 'structure', 'future']],
-      long: [['h1', 'vague', 'vague', 'topic', 'h2', 'define', 'define', 'define', 'body', 'h3', 'structure', 'body', 'structure', 'filler', 'h4', 'future', 'future', 'fillers', 'closer']],
+      medium: [['vague', 'define', 'body', 'structure', 'future'], ['vague', 'define', 'quote', 'structure', 'future']],
+      long: [['h1', 'vague', 'vague', 'topic', 'h2', 'define', 'define', 'define', 'body', 'h3', 'structure', 'body', 'structure', 'filler', 'quote', 'h4', 'future', 'future', 'fillers', 'closer']],
       parts: {
         sorry: ['對不起，我知道錯了，下次會注意。'], // 〔二手〕§13.4 本人原話，只用在短版
         h1: ['一、我的歉意'], h2: ['二、什麼是道歉'], h3: ['三、結構性的反思'], h4: ['四、未來'], // 〔論壇〕
@@ -789,8 +816,8 @@ const CORPUS = {
     holiday: {
       name: '節日問候',
       short: [['greet', 'wish']],
-      medium: [['greet', 'topic', 'reflect', 'body', 'wish', 'sign']],
-      long: [['greet', 'topic', 'reflect', 'reflect', 'filler', 'fillers', 'body', 'problem', 'reflect', 'body', 'filler', 'wish', 'wish', 'wish', 'sign']],
+      medium: [['greet', 'topic', 'reflect', 'body', 'wish', 'sign'], ['greet', 'topic', 'reflect', 'quote', 'wish', 'sign']],
+      long: [['greet', 'topic', 'reflect', 'reflect', 'filler', 'fillers', 'body', 'problem', 'reflect', 'body', 'quote', 'filler', 'wish', 'wish', 'wish', 'sign']],
       parts: {
         greet: ['{holiday}快樂。', '祝大家{holiday}快樂。', '又到了{holiday}。'], // 〔論壇〕節日貼文開場
         reflect: [
@@ -812,8 +839,8 @@ const CORPUS = {
     rally: {
       name: '造勢致詞',
       short: [['chant'], ['callresp', 'chant']],
-      medium: [['hype', 'crowd', 'callresp', 'body', 'chant']],
-      long: [['hype', 'hype', 'crowd', 'topic', 'story', 'story', 'problem', 'callresp', 'body', 'callresp', 'body', 'filler', 'promise', 'promise', 'thanks', 'chant']],
+      medium: [['hype', 'crowd', 'callresp', 'body', 'chant'], ['hype', 'crowd', 'quote', 'callresp', 'chant']],
+      long: [['hype', 'hype', 'crowd', 'topic', 'story', 'story', 'problem', 'callresp', 'body', 'callresp', 'body', 'quote', 'filler', 'promise', 'promise', 'thanks', 'chant']],
       parts: {
         hype: ['大家好！今天來了好多人！', '我聽不到！大家好不好！', '謝謝大家今天站出來！'], // 〔論壇〕造勢開場
         crowd: [
@@ -834,6 +861,159 @@ const CORPUS = {
         promise: ['四年後，我們一起讓這座城市順起來。', '只要接起來，就會順。我做得到，因為沒有做不做得到，只有做跟不做。'], // 〔一手〕§9.1／〔二手〕§12.2
         thanks: ['謝謝大家，我們一起走下去。', '謝謝你們，接下來的每一天，拜託大家。'], // 〔論壇〕
         chant: ['台北——順起來！', '接起來——就順了！', '台北——順起來！台北——順起來！'] // 〔一手〕§9.1 標語
+      }
+    },
+    /* ---------- 生活場合（style-guide §14.2）：把政治句子搬進有標準答案的日常 ---------- */
+    meeting: {
+      name: '職場會議',
+      short: [['deflect'], ['status']],
+      medium: [['open', 'topic', 'status', 'quote', 'deflect', 'wrap']],
+      long: [['open', 'topic', 'h1', 'status', 'status', 'body', 'h2', 'problem', 'why', 'quote', 'h3', 'how', 'how', 'deflect', 'wrap']],
+      parts: {
+        open: ['關於這個專案的進度，我先簡單報告一下。', '謝謝主管給我這個機會說明。', '這週的進度，我想從一個更高的角度來看。'], // 〔論壇〕
+        h1: ['一、進度報告'], h2: ['二、遇到的困難'], h3: ['三、下一步'], // 〔論壇〕
+        status: [
+          '目前進度卡在{stuck}，什麼都卡。', // 〔一手〕§9.2
+          '進度需要的是開始跟完成，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '這個專案現在的進度，就像溫度計上面的溫度，但它不是我們的體感溫度。', // 〔二手〕§14.1
+          '我們不會去當這種風紀股長，從檢查啊然後說你出錯——不是，檢查之後是要服務、是要補強。' // 〔二手〕§14.1
+        ],
+        deflect: [
+          '至於具體的時程——這稿子沒有寫。', // 〔二手〕§14.1
+          '如果現在沒辦法決定，會後加LINE也可以。', // 〔二手〕§11.2
+          '一個一個解釋，大概要半小時。' // 〔二手〕§11.2
+        ],
+        wrap: ['以上，最短的捷徑就是繞遠路。', '沒有做不做得到，只有做跟不做。', '謝謝大家，那我們下週再對齊。'] // 〔二手〕§14.1／§12.2／〔論壇〕
+      }
+    },
+
+    wedding: {
+      name: '婚禮致詞',
+      short: [['advice', 'toast']],
+      medium: [['open', 'couple', 'quote', 'advice', 'toast']],
+      long: [['open', 'topic', 'story', 'story', 'couple', 'couple', 'body', 'advice', 'advice', 'quote', 'fillers', 'toast']],
+      parts: {
+        open: ['各位親朋好友，大家好，我是新郎的大學同學。', '很榮幸今天能站在這裡，為兩位新人說幾句話。', '我準備了很久，但這稿子沒有寫。'], // 〔論壇〕／〔二手〕§14.1
+        couple: [
+          '婚姻需要的是結婚跟不離婚，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '有人說他們是同一類人——是同一類人沒有錯，因為都是愛對方的人。', // 〔二手〕§14.1 接受前提再反轉
+          '他們的感情，是先有你，才有我們。', // 〔二手〕§11.1 先後順序
+          '他們讓我知道，一個家，可以不是兩個世界。' // 〔二手〕§11.1 反用
+        ],
+        advice: [
+          '婚姻沒有做不做得到，只有做跟不做。', // 〔二手〕§12.2
+          '婚姻裡最短的捷徑，就是繞遠路。', // 〔二手〕§14.1
+          '吵架的時候，記得一句話：他開心就好。', // 〔二手〕§14.1
+          '婚姻的悠閒，其實重點是時間能空出來。' // 〔二手〕§14.1
+        ],
+        story: [
+          '我還記得他們第一次約會，新郎遲到了一個小時。新娘問他為什麼，他說：沒有遲不遲到，只有到跟不到。', // 〔二手〕§12.2 二元化消解
+          '新郎求婚前一天跟我說：婚戒需要的是挑選跟付款，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '他們剛交往的時候，很多人不看好。新郎只說了一句：他開心就好。' // 〔二手〕§14.1
+        ],
+        toast: ['讓我們舉杯，祝兩位新人順起來！', '乾杯！接起來，就順了。', '祝福他們：愛是溫暖的，可以帶來漁獲，不會燙傷人。'] // 〔一手〕§9.1／〔二手〕§14.1
+      }
+    },
+
+    yearend: {
+      name: '尾牙致詞',
+      short: [['bonus']],
+      medium: [['open', 'review', 'bonus', 'quote', 'toast']],
+      long: [['open', 'topic', 'review', 'review', 'story', 'body', 'bonus', 'bonus', 'quote', 'story', 'next', 'next', 'toast']],
+      parts: {
+        open: ['各位同仁，辛苦了！', '今年的尾牙，我想先跟大家說聲謝謝。'], // 〔論壇〕
+        review: [
+          '今年我們什麼都卡：預算卡、人力卡、{stuck}也卡。', // 〔一手〕§9.2
+          '今年的業績，就像溫度計上面的溫度，但它不是我們的體感溫度。', // 〔二手〕§14.1
+          '今年最重要的成就，是我們找回了{a}。' // 〔原站〕
+        ],
+        bonus: [
+          '至於年終——年終需要的是發放跟入帳，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '年終獎金的部分，這稿子沒有寫。', // 〔二手〕§14.1
+          '年終會不會發？沒有發不發得出來，只有發跟不發。' // 〔二手〕§12.2
+        ],
+        story: [
+          '今年有同事問我，公司到底要往哪裡走？我說：最短的捷徑，就是繞遠路。他想了很久，決定繼續待著。', // 〔二手〕§14.1
+          '業務部說今年什麼都卡。我說，卡是因為接點斷了，接起來就順了。他們說，那接點在哪？這稿子沒有寫。', // 〔一手〕§9.3／〔二手〕§14.1
+          '有人問我，加班費呢？我說：悠閒生活，其實重點是時間能空出來。' // 〔二手〕§14.1
+        ],
+        next: ['明年，我們的目標是讓公司順起來。', '最短的捷徑就是繞遠路，明年我們繼續繞。'], // 〔一手〕§9.1／〔二手〕§14.1
+        toast: ['來，大家乾杯！', '抽獎前我再說一次：我們是小火炬，是世上的光！'] // 〔論壇〕／〔二手〕§14.1
+      }
+    },
+
+    graduation: {
+      name: '畢業致詞',
+      short: [['advice']],
+      medium: [['open', 'reflect', 'quote', 'advice', 'close']],
+      long: [['open', 'topic', 'reflect', 'reflect', 'story', 'body', 'advice', 'advice', 'quote', 'story', 'body', 'fillers', 'close']],
+      parts: {
+        open: ['各位畢業生、各位家長，大家好。', '今天，是你們人生的一個接點。'], // 〔論壇〕／〔一手〕§9.3
+        reflect: [
+          '畢業需要的是修完學分跟拿到證書，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '你們是小火炬，是世上的光。', // 〔二手〕§14.1
+          '這四年，你們找回了{a}，也長出了{b}。' // 〔原站〕
+        ],
+        advice: [
+          '未來的路，最短的捷徑就是繞遠路。', // 〔二手〕§14.1
+          '人生沒有做不做得到，只有做跟不做。', // 〔二手〕§12.2
+          '出了社會，你會發現什麼都卡。但記得，接起來就順了。', // 〔一手〕§9.2／§9.3
+          '如果有人笑你，他開心就好。' // 〔二手〕§14.1
+        ],
+        story: [
+          '我畢業那年，也問過我的老師：未來要怎麼走？他說，沒有做不做得到，只有做跟不做。我到現在還在想那是什麼意思。', // 〔二手〕§12.2
+          '我記得剛出社會，什麼都卡：租屋卡、通勤卡、{stuck}也卡。後來我才知道，那些卡，都是接點。', // 〔一手〕§9.2／§9.3
+          '有人跟我說，你們這一代的眼神充滿無力感。我說，他開心就好。' // 〔二手〕§14.1
+        ],
+        close: ['恭喜大家，畢業快樂！', '祝福各位：雁過留聲，不必留名。'] // 〔論壇〕／〔一手〕§14.1
+      }
+    },
+
+    interview: {
+      name: '求職面試',
+      short: [['qa']],
+      medium: [['intro', 'qa', 'qa', 'qa', 'result']],
+      long: [['intro', 'topic', 'qa', 'qa', 'qa', 'qa', 'qa', 'qa', 'qa', 'reflect', 'quote', 'result']],
+      parts: {
+        intro: ['今天去面試，我把最近學的幾句話全用上了：', '面試官問了我幾個問題，我是這樣回答的：'], // 〔論壇〕§12 衍生
+        qa: [
+          '面試官：你最大的缺點是什麼？\n我：我本來就不是以外表取勝。', // 〔二手〕§14.1
+          '面試官：你為什麼想來我們公司？\n我：最短的捷徑，就是繞遠路。', // 〔二手〕§14.1
+          '面試官：你期望的薪資是多少？\n我：這稿子沒有寫。', // 〔二手〕§14.1
+          '面試官：你能在期限內完成嗎？\n我：沒有做不做得到，只有做跟不做。', // 〔二手〕§12.2
+          '面試官：你為什麼離開上一間公司？\n我：他開心就好。', // 〔二手〕§14.1
+          '面試官：五年後你在哪裡？\n我：如果現在沒辦法決定，晚點加LINE也可以。', // 〔二手〕§11.2
+          '面試官：你的工作效率如何？\n我：效率其實重點是時間能空出來。' // 〔二手〕§14.1
+        ],
+        reflect: [
+          '回家路上我想了很久：面試需要的是回答跟錄取，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '我覺得我答得很好，每一題都沒有回答問題。' // 〔論壇〕
+        ],
+        result: ['面試官沉默了很久，說會再通知我。', '面試官說，我的格局太大，公司放不下。', '面試結束，面試官說他需要一點時間對齊。'] // 〔論壇〕
+      }
+    },
+
+    family: {
+      name: '過年回家',
+      short: [['qa']],
+      medium: [['intro', 'qa', 'qa', 'qa', 'result']],
+      long: [['intro', 'topic', 'qa', 'qa', 'qa', 'qa', 'qa', 'qa', 'qa', 'reflect', 'quote', 'result']],
+      parts: {
+        intro: ['過年回家，親戚的問題我都準備好了：', '今年過年，我用幾句話撐過了一整桌親戚。'], // 〔論壇〕§12 衍生
+        qa: [
+          '阿姨：有對象了沒？\n我：感情需要的是交往跟結婚，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '舅舅：薪水多少？\n我：這稿子沒有寫。', // 〔二手〕§14.1
+          '姑姑：什麼時候結婚？\n我：最短的捷徑，就是繞遠路。', // 〔二手〕§14.1
+          '表哥：你是不是胖了？\n我：我本來就不是以外表取勝。', // 〔二手〕§14.1
+          '阿嬤：什麼時候要生小孩？\n我：先有房子，才有小孩。', // 〔二手〕§11.1 先後順序
+          '大伯：你看隔壁那個多成功。\n我：他開心就好。', // 〔二手〕§14.1
+          '二姨：你到底在忙什麼？\n我：一個一個解釋，大概要半小時。' // 〔二手〕§11.2
+        ],
+        reflect: [
+          '回家路上我才發現：過年需要的是回家跟離開，但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+          '整個年過完，我一句具體的話都沒說，所有問題都順了。' // 〔論壇〕§12 衍生
+        ],
+        result: ['親戚們互看一眼，開始聊別人家的小孩。', '阿嬤說我讀太多書了，紅包多給了一包。', '整桌安靜了三秒，然後有人說：吃菜吃菜。'] // 〔論壇〕
       }
     }
   },
@@ -878,6 +1058,12 @@ const CORPUS = {
     '你提到「{keyword}」，\n這正好就是我說的「卡」。\n\n{keyword}會卡，\n是因為它跟{a}中間的接點斷了。\n\n接起來，就順了。', // 〔一手〕接點論回覆型
     '謝謝你認真看「{keyword}」這件事。\n\n但我想邀請你換個角度：\n\n不要問{keyword}怎麼解決，\n要問{keyword}是卡在哪一段。\n\n找到那一段，其他的自然會順。', // 〔一手〕
     '「{keyword}」——\n說真的，這正是我要處理的接點之一。\n\n{a}接上{b}，\n{b}接上{c}。\n\n順序不能亂，\n但一旦連起來，你會有感覺的。', // 〔論壇〕
-    '我知道有人覺得「{keyword}」聽起來太空泛。\n\n我反而想說：\n空泛，是因為還沒看見接點。\n\n看見了，你就會知道，\n順起來不是口號，是結構。' // 〔二手〕回應「太像口號」之批評
+    '我知道有人覺得「{keyword}」聽起來太空泛。\n\n我反而想說：\n空泛，是因為還沒看見接點。\n\n看見了，你就會知道，\n順起來不是口號，是結構。', // 〔二手〕回應「太像口號」之批評
+    // 經典語錄（style-guide §14）：只回應對方的情緒、先接受前提再反轉
+    '你說「{keyword}」？\n\n他開心就好。', // 〔二手〕§14.1 他開心就好
+    '關於「{keyword}」——\n\n這稿子沒有寫。', // 〔二手〕§14.1
+    '是「{keyword}」沒有錯。\n\n因為我們都是在乎{topic}的人。', // 〔二手〕§14.1 接受前提再反轉
+    '「{keyword}」需要的是動工跟完工，\n但最重要的是陪伴。', // 〔二手〕§14.1 都更句套用
+    '你說的「{keyword}」，\n就像溫度計上面的溫度，\n但它不是我們的體感溫度。' // 〔二手〕§14.1 溫度計比喻
   ]
 };

@@ -272,7 +272,13 @@ const I18N = {
       rebuttal: 'Responding to criticism',
       apology: 'Apology statement',
       holiday: 'Holiday greeting',
-      rally: 'Rally speech'
+      rally: 'Rally speech',
+      meeting: 'Work meeting',
+      wedding: 'Wedding toast',
+      yearend: 'Year-end party',
+      graduation: 'Graduation speech',
+      interview: 'Job interview',
+      family: 'Family New Year'
     }
   }
 };
