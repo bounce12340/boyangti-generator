@@ -7,6 +7,8 @@
 <meta name="description" data-i18n-content="meta.desc" content="一鍵生成「有聽跟沒聽一樣」的伯洋體貼文與回覆——政治語言的幽默諷刺／媒體識讀小工具。">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- 使用統計：部署 worker/ 之後，把 Worker 網址填進 content（例如 https://boyangti-stats.你的帳號.workers.dev）。留空就完全不送任何統計。 -->
+<meta name="byt-stats" content="https://boyangti-stats.bounceto12340.workers.dev">
 <link rel="stylesheet" href="style.css">
 <script>
   // 在首次繪製前套用使用者存過的主題，避免明亮→深色的閃爍。
@@ -23,7 +25,7 @@
   <div class="brand">
     <span class="brand-mark" aria-hidden="true">「</span>
     <h1 class="brand-name" data-i18n="logo.name">伯洋體產生器</h1>
-    <span class="brand-ver" aria-label="版本 1.3" data-i18n-aria="a11y.version">1.3</span>
+    <span class="brand-ver" aria-label="版本 1.4" data-i18n-aria="a11y.version">1.4</span>
   </div>
   <div class="bar-actions">
     <button class="switch" data-lang-toggle data-i18n-aria="a11y.lang" aria-label="切換語言"></button>
@@ -166,7 +168,9 @@
 </main>
 
 <footer class="foot">
-  <p class="foot-ver" data-i18n="footer.version">伯洋體產生器 1.3</p>
+  <p class="foot-ver" data-i18n="footer.version">伯洋體產生器 1.4</p>
+  <p class="usage" id="usage-stats" aria-live="polite" hidden></p>
+  <p class="usage-privacy" id="usage-privacy" data-i18n="stats.privacy" hidden>統計只計數：每次產生只會送出「哪一種模式」和一組隨機代號，不會送出你輸入的任何文字。</p>
   <p data-i18n="footer.mark">伯洋體感知生態系已完成對齊 · 就是那麼簡單的道理而已</p>
   <p class="disclaimer" data-i18n="footer.disclaimer">本站為諷刺／娛樂用途之戲仿（parody）創作，所有內容皆由句式模板隨機拼裝生成，非沈伯洋本人言論，亦不代表其立場。</p>
 </footer>

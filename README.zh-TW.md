@@ -4,7 +4,7 @@
 
 > 一鍵生成讓人「有聽跟沒聽一樣」的完整貼文，或把對方的留言餵進來，產出一篇「回應了但等於沒回應」的廢話體回覆。
 
-**[線上體驗 →](https://bounce12340.github.io/boyangti-generator/)** · 目前版本：**伯洋體產生器 1.3**
+**[線上體驗 →](https://bounce12340.github.io/boyangti-generator/)** · 目前版本：**伯洋體產生器 1.4**
 
 ---
 
@@ -56,6 +56,7 @@
 | ↗ **分享到 Threads** | 一鍵帶文字開啟 Threads 發文視窗。 |
 | 🔁 **換一篇 · 📋 複製 · 🕘 紀錄** | 同參數重骰、一鍵複製附字數、最近 5 筆存於 `localStorage`。 |
 | 🔧 **進階模式** | 自己填關鍵詞，模板會自動收斂到真的用得到這些詞的那幾則。 |
+| 📊 **使用人數統計** | 頁尾顯示累計有多少位訪客、產生了多少篇廢話。只計數：每次產生只送出「哪一種模式」和一組隨機代號，**不會送出你輸入的任何文字**。後端是放在 [`worker/`](worker/) 的自架 Cloudflare Worker ＋ D1。 |
 | 🌐 **中英介面切換** | 預設繁體中文，可切換英文介面並記住選擇。**產出的內容一律是繁體中文**——語料庫的笑點翻成英文就不成立了。 |
 | 🌙 **深淺色主題 · 📱 手機 RWD** | 預設明亮版，一鍵切深色並記住選擇。375px 實測不破版。 |
 
@@ -96,7 +97,7 @@ python3 -m http.server 8000     # → http://localhost:8000
 
 ## 🏗 架構
 
-七個檔案。`data/corpus.js`（全域 `CORPUS`）、`data/i18n.js`（全域 `I18N`）與 `data/checklist.js`（全域 `CHECKLIST`）**必須**先於 `app.js` 載入——`app.js` 本身不含任何文案：產生的字來自語料庫，介面的字來自語言包，拆解模式的提問來自清單檔。
+七個檔案，外加選用的 `worker/` 統計後端。`data/corpus.js`（全域 `CORPUS`）、`data/i18n.js`（全域 `I18N`）與 `data/checklist.js`（全域 `CHECKLIST`）**必須**先於 `app.js` 載入——`app.js` 本身不含任何文案：產生的字來自語料庫，介面的字來自語言包，拆解模式的提問來自清單檔。
 
 ```
 index.html          標記與 script 標籤（載入順序有意義）
@@ -106,6 +107,7 @@ data/corpus.js      所有模板與詞庫
 data/i18n.js        介面字串，中／英兩包
 data/checklist.js   拆解模式的提問與偵測器（非戲仿內容）
 data/style-guide.md 風格分析與分級來源清單
+worker/             選用的使用統計後端（Cloudflare Worker ＋ D1）
 ```
 
 產生管線：
@@ -143,7 +145,8 @@ drawTags()   hashtag
 ## 🛠 技術說明
 
 - 純靜態 HTML / CSS / JavaScript，無後端、無 build 工具、無 API key、無相依套件。
-- 字型：[Satoshi](https://www.fontshare.com/fonts/satoshi)（Fontshare CDN）——全站唯一的外部請求，被擋時會退回 `PingFang TC` / `Microsoft JhengHei`。
+- 字型：Noto Serif TC／Noto Sans TC（Google Fonts），被擋時退回系統中文字型。
+- 使用統計：每次開頁與每次產生，各送一個請求到統計 Worker（`index.html` 的 `<meta name="byt-stats">`，留空即關閉）。只送模式名稱與隨機代號，詳見 [`worker/README.md`](worker/README.md)。
 - 由 `main` 分支部署至 GitHub Pages。
 - 驗證靠手動：每個風格 × 每個濃度 × 四種模式、每個場合 × 每種篇幅，深淺色各一輪，375px 寬度確認。
 
