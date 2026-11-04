@@ -6,7 +6,7 @@
 > piece of social media writing that sounds profound and says nothing. Or paste someone's comment
 > and get a reply that responds thoroughly without answering anything.
 
-**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.3**
+**[Live demo →](https://bounce12340.github.io/boyangti-generator/)** · Current version: **1.4**
 
 ---
 
@@ -64,6 +64,7 @@ Derived from the campaign slogan 「台北順起來」 ("let Taipei flow"), anno
 | ↗ **Share** | One click opens the Threads composer pre-filled. |
 | 🔁 **Reroll · 📋 Copy · 🕘 History** | Reroll with the same settings, copy with a character count, and keep the last 5 results in `localStorage`. |
 | 🔧 **Advanced mode** | Supply your own keywords; template selection narrows to the templates that actually use them. |
+| 📊 **Usage counter** | The footer shows how many visitors have used the site and how many pieces of waffle they've generated. Counting only: each generation sends the mode name and a random ID, **never anything you typed**. Backed by a small self-hosted Cloudflare Worker + D1 in [`worker/`](worker/). |
 | 🌐 **EN / 中 interface** | Starts in Traditional Chinese; the toggle switches to English and remembers your choice. **Generated output stays in Traditional Chinese either way** — the corpus is the joke and it doesn't survive translation. |
 | 🌙 **Themes · 📱 Responsive** | Light by default, dark one click away, choice remembered. Verified down to 375px. |
 
@@ -110,7 +111,7 @@ the interface language.
 
 ## Architecture
 
-Seven files. `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and
+Seven files, plus the optional `worker/` stats backend. `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and
 `data/checklist.js` (global `CHECKLIST`) **must** load before `app.js` — `app.js` contains no content
 of its own: generated strings come from the corpus, interface strings from the language pack,
 unpack-mode questions from the checklist.
@@ -123,6 +124,7 @@ data/corpus.js      all templates and word pools
 data/i18n.js        interface strings, zh-TW + en
 data/checklist.js   unpack-mode questions and detectors (not parody content)
 data/style-guide.md sourced style analysis + graded URL list
+worker/             optional usage-stats backend (Cloudflare Worker + D1)
 ```
 
 The generation pipeline:
@@ -174,8 +176,10 @@ Its constraints govern every corpus edit:
 ## Tech notes
 
 - Pure static HTML / CSS / JavaScript. No backend, no build tooling, no API keys, no dependencies.
-- Font: [Satoshi](https://www.fontshare.com/fonts/satoshi) via the Fontshare CDN — the only external
-  request the page makes. It degrades to `PingFang TC` / `Microsoft JhengHei` if blocked.
+- Fonts: Noto Serif TC / Noto Sans TC via Google Fonts, degrading to system CJK fonts if blocked.
+- Usage stats: one optional request per page load and per generation to the stats Worker
+  (`<meta name="byt-stats">` in `index.html`; leave it empty to switch stats off). Only the mode
+  name and a random ID are sent — see [`worker/README.md`](worker/README.md).
 - Deployed to GitHub Pages from `main`.
 - Verification is manual: exercise each style × each density × all four modes, each occasion × each length, in dark and light, at
   375px width.

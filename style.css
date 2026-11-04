@@ -353,6 +353,8 @@ mark.rh-con {
   font-size: var(--t-fine); color: var(--ink);
   border-left: 3px solid var(--marker);
 }
+.usage { font-weight: 500; color: var(--ink); margin-bottom: var(--s2); }
+.usage-privacy { font-size: var(--t-fine); margin-bottom: var(--s3); }
 .share-note {
   margin: 0; padding: var(--s3) var(--s5);
   font-size: var(--t-fine); color: var(--ink-2);
