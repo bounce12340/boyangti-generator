@@ -19,7 +19,7 @@ Verification is manual: open the page, exercise each style tab × each density s
 
 ## Architecture
 
-Six files, one hard dependency edge: `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and `data/checklist.js` (global `CHECKLIST`) **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — generated strings come from `CORPUS`, interface strings from `I18N`, unpack-mode questions from `CHECKLIST`.
+Six files plus the optional `worker/` backend, one hard dependency edge: `data/corpus.js` (global `CORPUS`), `data/i18n.js` (global `I18N`) and `data/checklist.js` (global `CHECKLIST`) **must** load before `app.js` (see the script tags at the bottom of `index.html`). `app.js` contains no content — generated strings come from `CORPUS`, interface strings from `I18N`, unpack-mode questions from `CHECKLIST`.
 
 There are four modes: `post` and `reply` produce parody; `rewrite` turns a concrete article into parody; `checklist` does the opposite — it takes a slogan apart. See [Rewrite mode](#rewrite-mode-corpusrewrite) and [Unpack mode](#unpack-mode-datachecklistjs).
 
@@ -135,9 +135,17 @@ The look is deliberate and documented here so it doesn't get reverted piecemeal.
 - **One motion moment**: the hero types out a specimen on load. Everything else is instant. `prefers-reduced-motion` skips it and kills the caret.
 - Unpack mode is a *form*, not cards: hairline rules, a fixed-width flag column for ✓/✗, numbered question groups. The ladder draws filled rungs as solid marker bars and empty rungs as hairlines, so "landed nowhere" is visible at a glance.
 
+### Usage stats (`worker/`, optional)
+
+The footer line 「已有 N 位訪客，產生了 M 篇廢話」 comes from a self-hosted Cloudflare Worker + D1 (`worker/src/index.js`, `worker/schema.sql`; deployed as `boyangti-stats.bounceto12340.workers.dev`, see `worker/README.md`). The site finds it through `<meta name="byt-stats" content="…">` in `index.html`; **an empty `content` turns stats off completely** — no request is made and the footer line and privacy note stay hidden.
+
+Client side (`app.js`): `initStats()` sends one visit on load; `runAction()` sends one event per generation via `STAT_KIND` (`quick`/`fields` → `post`, plus `reply`, `rewrite`, `checklist`; rerolls count, the hero specimen does not). The body is only `{ vid, kind }` — `vid` is a random UUID kept in `localStorage` under `byt_vid_v1` (a per-session one when storage fails). **Never add user input, topic, style or any other field to that body**; the footer privacy note (`stats.privacy`) promises exactly this. It is sent as `text/plain` so it is a CORS simple request with no preflight, `keepalive`, and every failure is swallowed — stats must never break the page.
+
+Worker side: `POST /hit` and `GET /stats`. It accepts only origins in `ALLOWED_ORIGINS` (so `file://` and localhost are not counted), rejects unknown kinds and bodies over 256 bytes, stores only a salted SHA-256 of the vid (`SALT` is a Worker secret, not in the repo), and caps each vid at 30 events per minute. "Visitors" means unique browsers, not people. Test it with an in-memory D1 shim over `node:sqlite` rather than against production, or reset the counters afterwards.
+
 ### Version label
 
-The site is **伯洋體產生器 1.3** (1.1 added 生活應用版; 1.2 added length, occasions and classic quotes; 1.3 added the rewrite engine). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
+The site is **伯洋體產生器 1.4** (1.1 added 生活應用版; 1.2 added length, occasions and classic quotes; 1.3 added the rewrite engine; 1.4 added usage stats). The number is written out by hand, so a version bump touches all of these: the `.brand-ver` span in the `index.html` header (its text *and* its static `aria-label`), the `footer.version` line in `index.html`, `footer.version` and `a11y.version` in **both** packs of `data/i18n.js`, and the "current version" line at the top of both READMEs.
 
 ### Rendering, storage, theming
 

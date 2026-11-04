@@ -1,0 +1,16 @@
+# 伯洋體產生器使用統計 Worker（部署步驟見 worker/README.md）
+name = "boyangti-stats"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+# 只接受這些來源送來的計數（逗號分隔）。本機 file:// 開啟時不會被計入。
+ALLOWED_ORIGINS = "https://bounce12340.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "boyangti-stats"
+# 已建立的正式資料庫（自行部署到別的帳號時，執行 `npx wrangler d1 create boyangti-stats` 換成新的 ID）
+database_id = "a648f631-1431-446d-89aa-b165ddfdfc9a"
+
+# SALT（代號雜湊用的鹽）是 secret，不放在這裡：`npx wrangler secret put SALT`

@@ -81,6 +81,7 @@ function applyLang(lang) {
   updateDensityHint();
   renderHistory();
   if (lastLabel) $('output-label').textContent = labelText(lastLabel);
+  if (lastStats) showStats(lastStats);
 }
 
 function labelText(l) {
@@ -807,6 +808,51 @@ function fallbackCopy(text, done) {
 }
 
 /* ---------- 事件綁定 ---------- */
+/* ---------- 使用統計（自架 Cloudflare Worker，見 worker/） ----------
+ * 只送模式名稱與一組隨機代號，絕不送使用者輸入的文字。
+ * <meta name="byt-stats"> 留空 = 完全關閉：不發任何請求、頁尾不顯示。 */
+const STATS_URL = ((document.querySelector('meta[name="byt-stats"]') || {}).content || '').trim().replace(/\/+$/, '');
+const VID_KEY = 'byt_vid_v1';
+const STAT_KIND = { quick: 'post', fields: 'post', reply: 'reply', rewrite: 'rewrite', checklist: 'checklist' };
+let sessionVid = null;
+let lastStats = null;
+
+function visitorId() {
+  try {
+    let v = localStorage.getItem(VID_KEY);
+    if (!v) { v = crypto.randomUUID(); localStorage.setItem(VID_KEY, v); }
+    return v;
+  } catch {
+    // 隱私模式存不了：這次瀏覽用一組暫時代號（會被當成新訪客，可以接受）
+    return sessionVid || (sessionVid = crypto.randomUUID());
+  }
+}
+
+function sendStat(kind) {
+  if (!STATS_URL) return;
+  const body = JSON.stringify(kind ? { vid: visitorId(), kind } : { vid: visitorId() });
+  // text/plain 是「簡單請求」，不會觸發 CORS 預檢
+  fetch(STATS_URL + '/hit', { method: 'POST', body, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' } })
+    .then(r => (r.ok ? r.json() : null))
+    .then(s => { if (s) showStats(s); })
+    .catch(() => { /* 統計失敗不影響使用 */ });
+}
+
+function showStats(s) {
+  if (!s || typeof s.visitors !== 'number' || typeof s.generated !== 'number') return;
+  lastStats = s;
+  const el = $('usage-stats');
+  const fmt = n => n.toLocaleString(currentLang === 'en' ? 'en-US' : 'zh-TW');
+  el.textContent = t('stats.line', { v: fmt(s.visitors), g: fmt(s.generated) });
+  el.hidden = false;
+}
+
+function initStats() {
+  if (!STATS_URL) return;
+  $('usage-privacy').hidden = false;
+  sendStat(null); // 記一次造訪，回傳的數字直接顯示在頁尾
+}
+
 function runAction(action) {
   lastAction = action;
   const topic = $('topic').value.trim();
@@ -824,6 +870,7 @@ function runAction(action) {
     // 同樣輸入應得到同樣的問題清單，故不重骰
     render(makeChecklist(action.input), { type: 'checklist' });
   }
+  sendStat(STAT_KIND[action.type]);
 }
 
 function setMode(mode) {
@@ -977,6 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .addEventListener('click', () => applyLang(currentLang === 'zh-TW' ? 'en' : 'zh-TW'));
 
   initHero();
+  initStats();
 
   document.querySelectorAll('.mode').forEach(b =>
     b.addEventListener('click', () => setMode(b.dataset.mode)));
